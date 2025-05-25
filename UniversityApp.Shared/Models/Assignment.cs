@@ -4,11 +4,11 @@ namespace UniversityApp.Shared.Models;
 
 public class Assignment
 {
-	[Key, Length(36, 36)]
-	public string Id { get; init; } = Guid.NewGuid().ToString();
+	[Key]
+	public Guid Id { get; init; } = Guid.NewGuid();
 	
 	[Required, Length(36, 36)]
-	public string CourseId { get; init; }
+	public Guid CourseId { get; init; }
 
 	[Required, MaxLength(100)]
 	public string Title { get; set; }

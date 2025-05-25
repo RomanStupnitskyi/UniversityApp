@@ -4,11 +4,12 @@ namespace UniversityApp.AssignmentService.Repositories;
 
 public interface ISubmissionRepository
 {
-	Task<IEnumerable<Submission>> GetAllAsync(string assignmentId);
-	Task<Submission?> GetByIdAsync(string assignmentId, string submissionId);
-	Task<Submission?> GetByStudentIdAsync(string assignmentId, string studentId);
-	Task<bool> AddAsync(Submission submission);
-	Task<bool> UpdateAsync(Submission submission);
-	Task<bool> DeleteAsync(Submission submission);
-	Task<bool> DeleteByIdAsync(string submissionId);
+	Task<IEnumerable<Submission>> GetAllAsync(Guid assignmentId);
+	Task<Submission?> GetByIdAsync(Guid assignmentId, Guid submissionId);
+	Task<Submission?> GetByStudentIdAsync(Guid assignmentId, Guid studentId);
+	Task AddAsync(Submission submission);
+	Task UpdateAsync(Submission submission);
+	Task DeleteAsync(Submission submission);
+	Task DeleteByAssignmentIdAsync(Guid assignmentId);
+	Task<bool> DeleteByIdAsync(Guid submissionId);
 }

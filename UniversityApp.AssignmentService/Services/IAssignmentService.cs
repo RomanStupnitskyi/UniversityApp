@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Models;
 
 namespace UniversityApp.AssignmentService.Services;
 
 public interface IAssignmentService
 {
-	Task<ActionResult> GetAllAsync();
-	Task<ActionResult> GetByIdAsync(string id);
-	Task<ActionResult> CreateAsync(CreateAssignmentDto dto);
-	Task<ActionResult> UpdateAsync(string id, UpdateAssignmentDto dto);
-	Task<ActionResult> DeleteAsync(string id);
+	Task<Result<IEnumerable<Assignment>>> GetAllAsync();
+	Task<Result<Assignment>> GetByIdAsync(Guid id);
+	Task<Result<Assignment>> CreateAsync(CreateAssignmentDto dto);
+	Task<Result<Assignment>> UpdateAsync(Guid id, UpdateAssignmentDto dto);
+	Task<Result> DeleteAsync(Guid id);
 }

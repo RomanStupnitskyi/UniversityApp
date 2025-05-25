@@ -2,8 +2,8 @@
 
 public class CreateAssignmentDto
 {
-	public string Id { get; init; } = Guid.NewGuid().ToString();
-	public string CourseId { get; set; }
+	public Guid Id { get; init; } = Guid.NewGuid();
+	public Guid CourseId { get; set; }
 	public string Title { get; set; }
 	public string? Description { get; set; }
 	public DateTime? StartDate { get; set; }

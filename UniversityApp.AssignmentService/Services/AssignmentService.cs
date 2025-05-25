@@ -1,148 +1,94 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Diagnostics.CodeAnalysis;
+using CSharpFunctionalExtensions;
+using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.API;
 using UniversityApp.AssignmentService.Repositories;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Events;
 using UniversityApp.Shared.Models;
 
 namespace UniversityApp.AssignmentService.Services;
 
 public class AssignmentService(
 	IAssignmentRepository assignmentRepository,
-	ICourseAPI courseAPI
+	ICourseAPI courseApi
+	// IPublishEndpoint publishEndpoint
 	) : IAssignmentService
 {
-	public async Task<ActionResult> GetAllAsync()
+	public async Task<Result<IEnumerable<Assignment>>> GetAllAsync()
 	{
-		try
-		{
-			var assignments = await assignmentRepository.GetAllAsync();
-			return new OkObjectResult(assignments);
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to fetch assignments");
-		}
+		var assignments = await assignmentRepository.GetAllAsync();
+		return Result.Success(assignments);
 	}
 
-	public async Task<ActionResult> GetByIdAsync(string id)
+	public async Task<Result<Assignment>> GetByIdAsync(Guid id)
 	{
-		try
-		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
-
-			var assignment = await assignmentRepository.GetByIdAsync(id);
-			if (assignment == null)
-				return new NotFoundObjectResult($"Assignment with ID=\"{id}\" not found");
-			
-			return new OkObjectResult(assignment);
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to fetch assignment");
-		}
+		var assignment = await assignmentRepository.GetByIdAsync(id);
+		return assignment == null
+			? Result.Failure<Assignment>($"Assignment with ID=\"{id}\" not found")
+			: Result.Success(assignment);
 	}
 
-	public async Task<ActionResult> CreateAsync(CreateAssignmentDto dto)
+	public async Task<Result<Assignment>> CreateAsync(CreateAssignmentDto dto)
 	{
-		try
+		var assignment = await assignmentRepository.GetByIdAsync(dto.Id);
+		if (assignment != null)
+			return Result.Failure<Assignment>($"Assignment with ID {dto.Id} already exists");
+		
+		var response = await courseApi.GetCourseByIdAsync(dto.CourseId);
+		if (!response.IsSuccessStatusCode)
+			return Result.Failure<Assignment>($"Course with ID {dto.CourseId} not found");
+		
+		var newAssignment = new Assignment
 		{
-			var assignment = await assignmentRepository.GetByIdAsync(dto.Id);
-			if (assignment != null)
-				return new NotFoundObjectResult($"Assignment with ID {dto.Id} already exists");
-			
-			var response = await courseAPI.GetCourseByIdAsync(dto.CourseId);
-			if (!response.IsSuccessStatusCode)
-				return new NotFoundObjectResult($"Course with ID {dto.CourseId} not found");
-			
-			var newAssignment = new Assignment
-			{
-				Id = dto.Id,
-				CourseId = dto.CourseId,
-				Title = dto.Title,
-				Description = dto.Description,
-				StartDate = dto.StartDate,
-				EndDate = dto.EndDate
-			};
+			Id = dto.Id,
+			CourseId = dto.CourseId,
+			Title = dto.Title,
+			Description = dto.Description,
+			StartDate = dto.StartDate,
+			EndDate = dto.EndDate
+		};
 
-			var success = await assignmentRepository.AddAsync(newAssignment);
-			return success
-				? new OkObjectResult(newAssignment)
-				: new ConflictObjectResult("Failed to create assignment");
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to create assignment");
-		}
+		await assignmentRepository.AddAsync(newAssignment);
+		return Result.Success(newAssignment);
 	}
 
-	public async Task<ActionResult> UpdateAsync(string id, UpdateAssignmentDto dto)
+	public async Task<Result<Assignment>> UpdateAsync(Guid id, UpdateAssignmentDto dto)
 	{
-		try
+		var assignment = await assignmentRepository.GetByIdAsync(id);
+		if (assignment == null)
+			return Result.Failure<Assignment>($"Assignment with ID=\"{id}\" not found");
+
+		switch (dto)
 		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
-
-			var assignment = await assignmentRepository.GetByIdAsync(id);
-			if (assignment == null)
-				return new NotFoundObjectResult($"Assignment with ID=\"{id}\" not found");
-
-			switch (dto)
-			{
-				case { EndDate: not null, StartDate: null } when dto.EndDate <= assignment.StartDate:
-					return new BadRequestObjectResult("End date must be after start date");
-				case { StartDate: not null, EndDate: null } when dto.StartDate >= assignment.EndDate:
-					return new BadRequestObjectResult("Start date must be before end date");
-			}
-
-			assignment.Title = dto.Title ?? assignment.Title;
-			assignment.Description = dto.Description ?? assignment.Description;
-			assignment.StartDate = dto.StartDate ?? assignment.StartDate;
-			assignment.EndDate = dto.EndDate ?? assignment.EndDate;
-
-			var success = await assignmentRepository.UpdateAsync(assignment);
-			return success
-				? new OkObjectResult(assignment)
-				: new ConflictObjectResult("Failed to update assignment");
+			case { EndDate: not null, StartDate: null } when dto.EndDate <= assignment.StartDate:
+				return Result.Failure<Assignment>("End date must be after start date");
+			case { StartDate: not null, EndDate: null } when dto.StartDate >= assignment.EndDate:
+				return Result.Failure<Assignment>("Start date must be before end date");
 		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to update assignment");
-		}
+
+		assignment.Title = dto.Title ?? assignment.Title;
+		assignment.Description = dto.Description ?? assignment.Description;
+		assignment.StartDate = dto.StartDate ?? assignment.StartDate;
+		assignment.EndDate = dto.EndDate ?? assignment.EndDate;
+
+		await assignmentRepository.UpdateAsync(assignment);
+		return Result.Success(assignment);
 	}
 
-	public async Task<ActionResult> DeleteAsync(string id)
+	[SuppressMessage("ReSharper", "ConvertIfStatementToReturnStatement")]
+	public async Task<Result> DeleteAsync(Guid id)
 	{
-		try
-		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
+		var success = await assignmentRepository.DeleteByIdAsync(id);
+		if (!success)
+			return Result.Failure($"Assignment with ID=\"{id}\" not found");
 
-			var assignment = await assignmentRepository.GetByIdAsync(id);
-			if (assignment == null)
-				return new NotFoundObjectResult($"Assignment with ID=\"{id}\" not found");
+		// await publishEndpoint.Publish(new AssignmentDeletedEvent
+		// {
+		// 	AssignmentId = id
+		// });
 
-			var success = await assignmentRepository.DeleteByIdAsync(id);
-			return success
-				? new OkObjectResult($"Assignment with ID=\"{id}\" deleted successfully")
-				: new ConflictObjectResult("Failed to delete assignment");
-		}
-		catch (KeyNotFoundException)
-		{
-			return new NotFoundObjectResult($"Assignment with ID=\"{id}\" not found");
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to delete assignment");
-		}
+		return Result.Success($"Assignment with ID=\"{id}\" deleted successfully");
 	}
 }

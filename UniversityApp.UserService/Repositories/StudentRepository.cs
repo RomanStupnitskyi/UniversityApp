@@ -13,39 +13,21 @@ public class StudentRepository(UserDbContext dbContext) : IStudentRepository
 		return await dbContext.Students.ToListAsync();
 	}
 
-	public async Task<Student?> GetByIdAsync(string id)
+	public async Task<Student?> GetByIdAsync(Guid id)
 	{
 		return await dbContext.Students.FindAsync(id);
 	}
 
-	public async Task<bool> AddAsync(Student student)
+	public async Task AddAsync(Student student)
 	{
-		try
-		{
-			await dbContext.Students.AddAsync(student);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		await dbContext.Students.AddAsync(student);
+		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Student student)
+	public async Task UpdateAsync(Student student)
 	{
-		try
-		{
-			dbContext.Students.Update(student);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		dbContext.Students.Update(student);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task DeleteAsync(Student student)
@@ -54,21 +36,14 @@ public class StudentRepository(UserDbContext dbContext) : IStudentRepository
 		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteByIdAsync(string id)
+	public async Task<bool> DeleteByIdAsync(Guid id)
 	{
 		var student = await GetByIdAsync(id);
 		if (student == null)
-			throw new KeyNotFoundException($"Student with ID {id} not found.");
-		
-		try
-		{
-			await DeleteAsync(student);
-			return true;
-		}
-		catch (Exception)
-		{
 			return false;
-		}
+		
+		await DeleteAsync(student);
+		return true;
 	}
 	
 	public async Task<Student?> FindStudentByStudentNumber(string studentNumber)

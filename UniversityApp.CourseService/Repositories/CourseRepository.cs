@@ -12,70 +12,37 @@ public class CourseRepository(CourseDbContext dbContext) : ICourseRepository
 		return courses;
 	}
 
-	public Task<Course?> GetByIdAsync(string id)
+	public Task<Course?> GetByIdAsync(Guid id)
 	{
 		var course = dbContext.Courses.FirstOrDefaultAsync(c => c.Id == id);
 		return course;
 	}
 
-	public async Task<bool> AddAsync(Course course)
+	public async Task AddAsync(Course course)
 	{
-		try
-		{
-			await dbContext.Courses.AddAsync(course);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		await dbContext.Courses.AddAsync(course);
+		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Course course)
+	public async Task UpdateAsync(Course course)
 	{
-		try
-		{
-			dbContext.Courses.Update(course);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		dbContext.Courses.Update(course);
+		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteAsync(Course course)
+	public async Task DeleteAsync(Course course)
 	{
-		try
-		{
-			dbContext.Courses.Remove(course);
-			await dbContext.SaveChangesAsync();
-
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		dbContext.Courses.Remove(course);
+		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteByIdAsync(string id)
+	public async Task<bool> DeleteByIdAsync(Guid id)
 	{
 		var course = await GetByIdAsync(id);
 		if (course == null)
-			throw new KeyNotFoundException($"Student with ID {id} not found.");
-		
-		try
-		{
-			return await DeleteAsync(course);
-		}
-		catch (Exception)
-		{
 			return false;
-		}
+		
+		await DeleteAsync(course);
+		return true;
 	}
 }

@@ -5,9 +5,9 @@ namespace UniversityApp.UserService.Repositories;
 public interface ILecturerRepository
 {
 	Task<IEnumerable<Lecturer>> GetAllAsync();
-	Task<Lecturer?> GetByIdAsync(string id);
-	Task<bool> AddAsync(Lecturer lecturer);
-	Task<bool> UpdateAsync(Lecturer lecturer);
+	Task<Lecturer?> GetByIdAsync(Guid id);
+	Task AddAsync(Lecturer lecturer);
+	Task UpdateAsync(Lecturer lecturer);
 	Task DeleteAsync(Lecturer lecturer);
-	Task<bool> DeleteByIdAsync(string id);
+	Task<bool> DeleteByIdAsync(Guid id);
 }

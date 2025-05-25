@@ -5,10 +5,10 @@ namespace UniversityApp.UserService.Repositories;
 public interface IStudentRepository
 {
 	Task<IEnumerable<Student>> GetAllAsync();
-	Task<Student?> GetByIdAsync(string id);
+	Task<Student?> GetByIdAsync(Guid id);
 	Task<Student?> FindStudentByStudentNumber(string id);
-	Task<bool> AddAsync(Student student);
-	Task<bool> UpdateAsync(Student student);
+	Task AddAsync(Student student);
+	Task UpdateAsync(Student student);
 	Task DeleteAsync(Student student);
-	Task<bool> DeleteByIdAsync(string id);
+	Task<bool> DeleteByIdAsync(Guid id);
 }

@@ -1,4 +1,6 @@
 using FluentValidation;
+using MassTransit;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Refit;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
@@ -19,6 +21,22 @@ builder.Services.AddOpenApiDocument(options =>
 	options.DocumentName = "v1";
 	options.Title = "UniversityApp Courses Service API";
 });
+
+// -------------------------------------------------------------------------------
+// -- Exceptions handler
+// -------------------------------------------------------------------------------
+builder.Services.AddProblemDetails(options =>
+{
+	options.CustomizeProblemDetails = context =>
+	{
+		context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+		context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
+
+		var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+		context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+	};
+});
+// builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // -------------------------------------------------------------------------------
 // -- Database
@@ -43,6 +61,28 @@ builder.Services.AddRefitClient<IUserAPI>()
 		options.BaseAddress = new Uri(builder.Configuration["API:UserAPI"]
 		                              ?? throw new Exception("User API URL is not configured"));
 	});
+
+// -------------------------------------------------------------------------------
+// -- MassTransit & RabbitMQ
+// -------------------------------------------------------------------------------
+// builder.Services.AddMassTransit(configurator =>
+// {
+// 	configurator.SetKebabCaseEndpointNameFormatter();
+// 	
+// 	configurator.UsingRabbitMq((context, factoryConfigurator) =>
+// 	{
+// 		factoryConfigurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]
+// 			?? throw new Exception("RabbitMQ Host is not configured")), hostConfigurator =>
+// 		{
+// 			hostConfigurator.Username(builder.Configuration["MessageBroker:Username"]
+// 				?? throw new Exception("RabbitMQ Username is not configured"));
+// 			hostConfigurator.Password(builder.Configuration["MessageBroker:Password"]
+// 				?? throw new Exception("RabbitMQ Password is not configured"));
+// 		});
+// 			
+// 		factoryConfigurator.ConfigureEndpoints(context);
+// 	});
+// });
 
 // -------------------------------------------------------------------------------
 // -- Dependency Injection

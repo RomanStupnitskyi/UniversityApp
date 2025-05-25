@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Models;
 using UniversityApp.UserService.Services;
 
 namespace UniversityApp.UserService.Controllers;
@@ -11,30 +12,45 @@ public class LecturersController(ILecturerService lecturerService) : ControllerB
 	[HttpGet]
 	public async Task<IActionResult> GetAll()
 	{
-		return await lecturerService.GetAllAsync();
+		var result = await lecturerService.GetAllAsync();
+		return result.IsSuccess
+			? Ok(result.Value)
+			: Conflict(result.Error);
 	}
 	
-	[HttpGet("{id}")]
-	public async Task<IActionResult> GetById(string id)
+	[HttpGet("{id:guid}")]
+	public async Task<IActionResult> GetById(Guid id)
 	{
-		return await lecturerService.GetByIdAsync(id);
+		var result = await lecturerService.GetByIdAsync(id);
+		return result.IsSuccess
+			? Ok(result.Value)
+			: Conflict(result.Error);
 	}
 	
 	[HttpPost]
 	public async Task<IActionResult> Create([FromBody] CreateLecturerDto dto)
 	{
-		return await lecturerService.CreateAsync(dto);
+		var result = await lecturerService.CreateAsync(dto);
+		return result.IsSuccess
+			? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
+			: Conflict(result.Error);
 	}
 	
-	[HttpPut("{id}")]
-	public async Task<IActionResult> Update(string id, [FromBody] UpdateLecturerDto dto)
+	[HttpPut("{id:guid}")]
+	public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLecturerDto dto)
 	{
-		return await lecturerService.UpdateAsync(id, dto);
+		var result = await lecturerService.UpdateAsync(id, dto);
+		return result.IsSuccess
+			? Ok(result.Value)
+			: Conflict(result.Error);
 	}
 	
-	[HttpDelete("{id}")]
-	public async Task<IActionResult> Delete(string id)
+	[HttpDelete("{id:guid}")]
+	public async Task<IActionResult> Delete(Guid id)
 	{
-		return await lecturerService.DeleteAsync(id);
+		var result = await lecturerService.DeleteAsync(id);
+		return result.IsSuccess
+			? NoContent()
+			: Conflict(result.Error);
 	}
 }

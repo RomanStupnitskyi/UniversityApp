@@ -7,8 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
         <PackageReference Include="FluentValidation" Version="12.0.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.5">
             <PrivateAssets>all</PrivateAssets>
@@ -21,6 +23,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\UniversityApp.Shared\UniversityApp.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\Migrations\" />
     </ItemGroup>
 
 </Project>

@@ -11,30 +11,45 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult> GetAll()
 	{
-		return await studentService.GetAllAsync();
+		var result = await studentService.GetAllAsync();
+		return result.IsSuccess
+			? Ok(result.Value)
+			: BadRequest(result.Error);
 	}
 	
-	[HttpGet("{id}")]
-	public async Task<ActionResult> GetById(string id)
+	[HttpGet("{id:guid}")]
+	public async Task<ActionResult> GetById(Guid id)
 	{
-		return await studentService.GetByIdAsync(id);
+		var result = await studentService.GetByIdAsync(id);
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
 	[HttpPost]
 	public async Task<ActionResult> Create([FromBody] CreateStudentDto dto)
 	{
-		return Ok(await studentService.CreateAsync(dto));
+		var result = await studentService.CreateAsync(dto);
+		return result.IsSuccess
+			? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
+			: BadRequest(result.Error);
 	}
 	
-	[HttpPut("{id}")]
-	public async Task<ActionResult> Update(string id, [FromBody] UpdateStudentDto dto)
+	[HttpPut("{id:guid}")]
+	public async Task<ActionResult> Update(Guid id, [FromBody] UpdateStudentDto dto)
 	{
-		return await studentService.UpdateAsync(id, dto);
+		var result = await studentService.UpdateAsync(id, dto);
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
-	[HttpDelete("{id}")]
-	public async Task<ActionResult> Delete(string id)
+	[HttpDelete("{id:guid}")]
+	public async Task<ActionResult> Delete(Guid id)
 	{
-		return await studentService.DeleteAsync(id);
+		var result = await studentService.DeleteAsync(id);
+		return result.IsSuccess
+			? NoContent()
+			: NotFound(result.Error);
 	}
 }

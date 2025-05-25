@@ -1,124 +1,71 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CSharpFunctionalExtensions;
+using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.Models;
 using UniversityApp.CourseService.Repositories;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Events;
 
 namespace UniversityApp.CourseService.Services;
 
-public class CourseService(ICourseRepository courseRepository) : ICourseService
+public class CourseService(
+	ICourseRepository courseRepository
+	// IPublishEndpoint publishEndpoint
+	) : ICourseService
 {
-	public async Task<ActionResult> GetAllAsync()
+	public async Task<Result<IEnumerable<Course>>> GetAllAsync()
 	{
-		try
-		{
-			var courses = await courseRepository.GetAllAsync();
-			return new OkObjectResult(courses);
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Error occurred while fetching courses");
-		}
+		var courses = await courseRepository.GetAllAsync();
+		return Result.Success(courses);
 	}
 
-	public async Task<ActionResult> GetByIdAsync(string id)
+	public async Task<Result<Course>> GetByIdAsync(Guid id)
 	{
-		try
-		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
-			
-			var course = await courseRepository.GetByIdAsync(id);
-			if (course == null)
-			{
-				return new NotFoundObjectResult($"Course with ID=\"{id}\" not found");
-			}
-			return new OkObjectResult(course);
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Error occurred while fetching courses");
-		}
+		var course = await courseRepository.GetByIdAsync(id);
+		return course == null
+			? Result.Failure<Course>($"Course with ID=\"{id}\" not found")
+			: Result.Success(course);
 	}
 
-	public async Task<ActionResult> CreateAsync(CreateCourseDto dto)
+	public async Task<Result<Course>> CreateAsync(CreateCourseDto dto)
 	{
-		try
+		var course = new Course
 		{
-			var course = new Course
-			{
-				Id = dto.Id,
-				Title = dto.Title,
-				Description = dto.Description,
-				ECTS = dto.ECTS
-			};
-			
-			if (dto.ECTS == 10) return new ConflictObjectResult("Course with 10 ECTS is unavailable");
-			
-			var success = await courseRepository.AddAsync(course);
-			return success
-				? new OkObjectResult(course)
-				: new ConflictObjectResult("Error occurred while creating course");
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Error occurred while creating course");
-		}
+			Id = dto.Id,
+			Title = dto.Title,
+			Description = dto.Description,
+			ECTS = dto.ECTS
+		};
+		
+		await courseRepository.AddAsync(course);
+		return Result.Success(course);
 	}
 
-	public async Task<ActionResult> UpdateAsync(string id, UpdateCourseDto dto)
+	public async Task<Result<Course>> UpdateAsync(Guid id, UpdateCourseDto dto)
 	{
-		try
-		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
-			
-			var course = await courseRepository.GetByIdAsync(id);
-			if (course == null)
-				return new NotFoundObjectResult($"Course with ID=\"{id}\" not found");
-			
-			course.Title = dto.Title ?? course.Title;
-			course.Description = dto.Description ?? course.Description;
-			course.ECTS = dto.ECTS ?? course.ECTS;
-			
-			var success = await courseRepository.UpdateAsync(course);
-			return success
-				? new OkObjectResult(course)
-				: new ConflictObjectResult("Error occurred while updating course");
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Error occurred while updating course");
-		}
+		var course = await courseRepository.GetByIdAsync(id);
+		if (course == null)
+			return Result.Failure<Course>($"Course with ID=\"{id}\" not found");
+		
+		course.Title = dto.Title ?? course.Title;
+		course.Description = dto.Description ?? course.Description;
+		course.ECTS = dto.ECTS ?? course.ECTS;
+		
+		await courseRepository.UpdateAsync(course);
+		return Result.Success(course);
 	}
 
-	public async Task<ActionResult> DeleteAsync(string id)
+	public async Task<Result> DeleteAsync(Guid id)
 	{
-		try
-		{
-			var guid = Guid.TryParse(id, out var parsedId);
-			if (!guid)
-				return new BadRequestObjectResult("Invalid ID format");
-			if (parsedId == Guid.Empty)
-				return new BadRequestObjectResult("ID cannot be empty");
-			
-			var success = await courseRepository.DeleteByIdAsync(id);
-			return success
-				? new OkObjectResult($"Course with ID=\"{id}\" deleted successfully")
-				: new ConflictObjectResult("Failed to delete course");
-		}
-		catch (KeyNotFoundException)
-		{
-			return new NotFoundObjectResult($"Course with ID=\"{id}\" not found");
-		}
-		catch (Exception)
-		{
-			return new ConflictObjectResult("Failed to delete course");
-		}
+		var success = await courseRepository.DeleteByIdAsync(id);
+		if (!success)
+			return Result.Failure($"Course with ID=\"{id}\" not found");
+
+		// await publishEndpoint.Publish(new CourseDeletedEvent
+		// {
+		// 	CourseId = id
+		// });
+
+		return Result.Success($"Course with ID=\"{id}\" deleted successfully");
 	}
 }

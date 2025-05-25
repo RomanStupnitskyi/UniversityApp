@@ -4,8 +4,8 @@ namespace UniversityApp.Shared.Models;
 
 public class Student
 {
-	[Key, Length(36, 36)]
-	public string Id { get; init; }
+	[Key]
+	public Guid Id { get; init; }
 
 	[Required, Length(6, 12)]
 	public string StudentNumber { get; set; }

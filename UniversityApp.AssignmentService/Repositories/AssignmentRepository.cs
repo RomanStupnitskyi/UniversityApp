@@ -12,68 +12,52 @@ public class AssignmentRepository(AssignmentDbContext assignmentDbContext) : IAs
 		return assignments;
 	}
 
-	public async Task<Assignment?> GetByIdAsync(string id)
+	public async Task<Assignment?> GetByIdAsync(Guid id)
 	{
 		var assignment = await assignmentDbContext.Assignments
 			.FirstOrDefaultAsync(a => a.Id == id);
 		return assignment;
 	}
 
-	public async Task<bool> AddAsync(Assignment assignment)
+	public async Task AddAsync(Assignment assignment)
 	{
-		try
-		{
-			await assignmentDbContext.Assignments.AddAsync(assignment);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		await assignmentDbContext.Assignments.AddAsync(assignment);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Assignment assignment)
+	public async Task UpdateAsync(Assignment assignment)
 	{
-		try
-		{
-			assignmentDbContext.Assignments.Update(assignment);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		assignmentDbContext.Assignments.Update(assignment);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteAsync(Assignment assignment)
+	public async Task DeleteAsync(Assignment assignment)
 	{
-		try
-		{
-			assignmentDbContext.Assignments.Remove(assignment);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		assignmentDbContext.Assignments.Remove(assignment);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteByIdAsync(string id)
+	public async Task<bool> DeleteByCourseIdAsync(Guid id)
+	{
+		var assignments = await assignmentDbContext.Assignments
+			.Where(a => a.CourseId == id)
+			.ToListAsync();
+
+		if (assignments.Count == 0)
+			return true;
+
+		assignmentDbContext.Assignments.RemoveRange(assignments);
+		await assignmentDbContext.SaveChangesAsync();
+		return true;
+	}
+
+	public async Task<bool> DeleteByIdAsync(Guid id)
 	{
 		var assignment = await GetByIdAsync(id);
 		if (assignment == null)
-			throw new KeyNotFoundException($"Assignment with ID=\"{id}\" not found.");
-
-		try
-		{
-			return await DeleteAsync(assignment);
-		}
-		catch (Exception)
-		{
 			return false;
-		}
+
+		await DeleteAsync(assignment);
+		return true;
 	}
 }

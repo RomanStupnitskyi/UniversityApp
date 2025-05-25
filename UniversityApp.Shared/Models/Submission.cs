@@ -4,15 +4,14 @@ namespace UniversityApp.Shared.Models;
 
 public class Submission
 {
-	[Key, Length(36, 36)]
-	public string Id { get; init; } = Guid.NewGuid().ToString();
+	[Key]
+	public Guid Id { get; init; } = Guid.NewGuid();
 	
 	[Required, Length(36, 36)]
-	public string AssignmentId { get; init; }
-	public Assignment Assignment { get; init; }
+	public Guid AssignmentId { get; init; }
 	
 	[Required, Length(36, 36)]
-	public string StudentId { get; init; }
+	public Guid StudentId { get; init; }
 	
 	[Required, MaxLength(500)]
 	public string Content { get; set; }

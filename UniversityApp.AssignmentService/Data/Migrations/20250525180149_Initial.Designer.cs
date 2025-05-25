@@ -12,8 +12,8 @@ using UniversityApp.AssignmentService.Data;
 namespace UniversityApp.AssignmentService.Data.Migrations
 {
     [DbContext(typeof(AssignmentDbContext))]
-    [Migration("20250518211325_Submission")]
-    partial class Submission
+    [Migration("20250525180149_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,12 +27,12 @@ namespace UniversityApp.AssignmentService.Data.Migrations
 
             modelBuilder.Entity("UniversityApp.Shared.Models.Assignment", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -60,12 +60,12 @@ namespace UniversityApp.AssignmentService.Data.Migrations
 
             modelBuilder.Entity("UniversityApp.Shared.Models.Submission", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("AssignmentId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("AssignmentId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -75,29 +75,15 @@ namespace UniversityApp.AssignmentService.Data.Migrations
                     b.Property<DateTime?>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("SubmittedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignmentId");
-
                     b.ToTable("Submissions", (string)null);
-                });
-
-            modelBuilder.Entity("UniversityApp.Shared.Models.Submission", b =>
-                {
-                    b.HasOne("UniversityApp.Shared.Models.Assignment", "Assignment")
-                        .WithMany()
-                        .HasForeignKey("AssignmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Assignment");
                 });
 #pragma warning restore 612, 618
         }

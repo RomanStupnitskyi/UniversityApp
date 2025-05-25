@@ -8,17 +8,13 @@ public class CreateAssignmentValidator : AbstractValidator<CreateAssignmentDto>
 	public CreateAssignmentValidator()
 	{
 		RuleFor(x => x.Id)
-			.Must(id => Guid.TryParse(id, out _))
-			.WithMessage("Id must be a valid GUID.")
-			.Must(id => Guid.TryParse(id, out var parsed) && parsed != Guid.Empty)
+			.Must(id => id != Guid.Empty)
 			.WithMessage("Id must not be an empty GUID.");
 		
 		RuleFor(x => x.CourseId)
 			.NotEmpty()
 			.WithMessage("CourseId is required.")
-			.Must(id => Guid.TryParse(id, out _))
-			.WithMessage("CourseId must be a valid GUID.")
-			.Must(id => Guid.TryParse(id, out var parsed) && parsed != Guid.Empty)
+			.Must(id => id != Guid.Empty)
 			.WithMessage("CourseId must not be an empty GUID.");
 		
 		RuleFor(x => x.Title)

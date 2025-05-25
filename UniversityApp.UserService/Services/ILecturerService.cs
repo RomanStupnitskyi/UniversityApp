@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CSharpFunctionalExtensions;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Models;
 
 namespace UniversityApp.UserService.Services;
 
 public interface ILecturerService
 {
-	Task<ActionResult> GetAllAsync();
-	Task<ActionResult> GetByIdAsync(string id);
-	Task<ActionResult> CreateAsync(CreateLecturerDto dto);
-	Task<ActionResult> UpdateAsync(string id, UpdateLecturerDto dto);
-	Task<ActionResult> DeleteAsync(string id);
+	Task<Result<IEnumerable<Lecturer>>> GetAllAsync();
+	Task<Result<Lecturer>> GetByIdAsync(Guid id);
+	Task<Result<Lecturer>> CreateAsync(CreateLecturerDto dto);
+	Task<Result<Lecturer>> UpdateAsync(Guid id, UpdateLecturerDto dto);
+	Task<Result> DeleteAsync(Guid id);
 }

@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using UniversityApp.AssignmentService.Data;
+using UniversityApp.CourseService.Data;
 
 #nullable disable
 
-namespace UniversityApp.AssignmentService.Data.Migrations
+namespace UniversityApp.CourseService.Data.Migrations
 {
-    [DbContext(typeof(AssignmentDbContext))]
-    [Migration("20250518175111_Initial")]
+    [DbContext(typeof(CourseDbContext))]
+    [Migration("20250525180010_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,14 +25,11 @@ namespace UniversityApp.AssignmentService.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("UniversityApp.Shared.Models.Assignment", b =>
+            modelBuilder.Entity("UniversityApp.Shared.Models.Course", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -42,11 +39,8 @@ namespace UniversityApp.AssignmentService.Data.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<int>("ECTS")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -55,7 +49,7 @@ namespace UniversityApp.AssignmentService.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Assignments", (string)null);
+                    b.ToTable("Courses");
                 });
 #pragma warning restore 612, 618
         }

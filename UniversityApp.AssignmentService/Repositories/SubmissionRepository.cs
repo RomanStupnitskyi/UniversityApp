@@ -6,7 +6,7 @@ namespace UniversityApp.AssignmentService.Repositories;
 
 public class SubmissionRepository(AssignmentDbContext assignmentDbContext) : ISubmissionRepository
 {
-	public async Task<IEnumerable<Submission>> GetAllAsync(string assignmentId)
+	public async Task<IEnumerable<Submission>> GetAllAsync(Guid assignmentId)
 	{
 		var submissions = await assignmentDbContext.Submissions
 			.Where(s => s.AssignmentId == assignmentId)
@@ -14,80 +14,58 @@ public class SubmissionRepository(AssignmentDbContext assignmentDbContext) : ISu
 		return submissions;
 	}
 
-	public async Task<Submission?> GetByIdAsync(string assignmentId, string submissionId)
+	public async Task<Submission?> GetByIdAsync(Guid assignmentId, Guid submissionId)
 	{
 		var submission = await assignmentDbContext.Submissions
 			.FirstOrDefaultAsync(s => s.AssignmentId == assignmentId && s.Id == submissionId);
 		return submission;
 	}
 
-	public async Task<Submission?> GetByStudentIdAsync(string assignmentId, string studentId)
+	public async Task<Submission?> GetByStudentIdAsync(Guid assignmentId, Guid studentId)
 	{
 		var submission = await assignmentDbContext.Submissions
 			.FirstOrDefaultAsync(s => s.AssignmentId == assignmentId && s.StudentId == studentId);
 		return submission;
 	}
 
-	public async Task<bool> AddAsync(Submission submission)
+	public async Task AddAsync(Submission submission)
 	{
-		try
-		{
-			await assignmentDbContext.Submissions.AddAsync(submission);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		await assignmentDbContext.Submissions.AddAsync(submission);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Submission submission)
+	public async Task UpdateAsync(Submission submission)
 	{
-		try
-		{
-			submission.LastUpdatedAt = DateTime.UtcNow;
-			assignmentDbContext.Submissions.Update(submission);
-			await assignmentDbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		submission.LastUpdatedAt = DateTime.UtcNow;
+		assignmentDbContext.Submissions.Update(submission);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteAsync(Submission submission)
+	public async Task DeleteAsync(Submission submission)
 	{
-		try
-		{
-			assignmentDbContext.Submissions.Remove(submission);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		assignmentDbContext.Submissions.Remove(submission);
+		await assignmentDbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteByIdAsync(string submissionId)
+	public async Task DeleteByAssignmentIdAsync(Guid assignmentId)
+	{
+		var submissions = await assignmentDbContext.Submissions
+			.Where(s => s.AssignmentId == assignmentId)
+			.ToListAsync();
+		
+		assignmentDbContext.Submissions.RemoveRange(submissions);
+		await assignmentDbContext.SaveChangesAsync();
+	}
+
+	public async Task<bool> DeleteByIdAsync(Guid submissionId)
 	{
 		var submission = await assignmentDbContext.Submissions
 			.FirstOrDefaultAsync(s => s.Id == submissionId);
 		if (submission == null)
 			throw new KeyNotFoundException($"Submission with ID=\"{submissionId}\" not found.");
 
-		try
-		{
-			assignmentDbContext.Submissions.Remove(submission);
-			await assignmentDbContext.SaveChangesAsync();
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		assignmentDbContext.Submissions.Remove(submission);
+		await assignmentDbContext.SaveChangesAsync();
+		return true;
 	}
 }

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.DTOs;
 
@@ -10,38 +9,47 @@ namespace UniversityApp.AssignmentService.Controllers;
 public class SubmissionController(ISubmissionService submissionService) : ControllerBase
 {
 	[HttpGet]
-	public async Task<IActionResult> GetAll(string assignmentId)
+	public async Task<IActionResult> GetAll(Guid assignmentId)
 	{
 		var result = await submissionService.GetAllAsync(assignmentId);
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
-	[HttpGet("{submissionId}")]
-	public async Task<IActionResult> GetById(string assignmentId, string submissionId)
+	[HttpGet("{submissionId:guid}")]
+	public async Task<IActionResult> GetById(Guid assignmentId, Guid submissionId)
 	{
 		var result = await submissionService.GetByIdAsync(assignmentId, submissionId);
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
 	[HttpPost]
-	public async Task<IActionResult> Create(string assignmentId, [FromBody] CreateSubmissionDto dto)
+	public async Task<IActionResult> Create(Guid assignmentId, [FromBody] CreateSubmissionDto dto)
 	{
 		var result = await submissionService.CreateAsync(assignmentId, dto);
-		return result;
+		return result.IsSuccess
+			? CreatedAtAction(nameof(GetById), new { assignmentId, submissionId = result.Value.Id }, result.Value)
+			: BadRequest(result.Error);
 	}
 	
-	[HttpPut("{submissionId}")]
-	public async Task<IActionResult> Update(string assignmentId, string submissionId, [FromBody] UpdateSubmissionDto dto)
+	[HttpPut("{submissionId:guid}")]
+	public async Task<IActionResult> Update(Guid assignmentId, Guid submissionId, [FromBody] UpdateSubmissionDto dto)
 	{
 		var result = await submissionService.UpdateAsync(assignmentId, submissionId, dto);
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
-	[HttpDelete("{submissionId}")]
-	[SuppressMessage("ReSharper", "UnusedParameter.Global")]
-	public async Task<IActionResult> Delete(string assignmentId, string submissionId)
+	[HttpDelete("{submissionId:guid}")]
+	public async Task<IActionResult> Delete(Guid assignmentId, Guid submissionId)
 	{
 		var result = await submissionService.DeleteAsync(assignmentId, submissionId);
-		return result;
+		return result.IsSuccess
+			? NoContent()
+			: NotFound(result.Error);
 	}
 }

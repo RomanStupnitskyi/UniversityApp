@@ -12,7 +12,7 @@ using UniversityApp.UserService.Data;
 namespace UniversityApp.UserService.Data.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20250517180654_Initial")]
+    [Migration("20250525175850_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,10 +25,31 @@ namespace UniversityApp.UserService.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("UniversityApp.UserService.Models.Student", b =>
+            modelBuilder.Entity("UniversityApp.Shared.Models.Lecturer", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ContactEmail")
                         .HasColumnType("text");
+
+                    b.Property<string>("ContactNumber")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Lecturers", (string)null);
+                });
+
+            modelBuilder.Entity("UniversityApp.Shared.Models.Student", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");

@@ -12,34 +12,44 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	public async Task<ActionResult> GetAllAsync()
 	{
 		var result = await assignmentService.GetAllAsync();
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
-	[HttpGet("{id}")]
-	public async Task<ActionResult> GetByIdAsync(string id)
+	[HttpGet("{id:guid}")]
+	public async Task<ActionResult> GetByIdAsync(Guid id)
 	{
 		var result = await assignmentService.GetByIdAsync(id);
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
 	[HttpPost]
 	public async Task<ActionResult> CreateAsync([FromBody] CreateAssignmentDto dto)
 	{
 		var result = await assignmentService.CreateAsync(dto);
-		return result;
+		return result.IsSuccess
+			? CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.Id }, result.Value)
+			: BadRequest(result.Error);
 	}
 	
-	[HttpPut("{id}")]
-	public async Task<ActionResult> UpdateAsync(string id, [FromBody] UpdateAssignmentDto dto)
+	[HttpPut("{id:guid}")]
+	public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateAssignmentDto dto)
 	{
 		var result = await assignmentService.UpdateAsync(id, dto);
-		return result;
+		return result.IsSuccess
+			? Ok(result.Value)
+			: NotFound(result.Error);
 	}
 	
-	[HttpDelete("{id}")]
-	public async Task<ActionResult> DeleteAsync(string id)
+	[HttpDelete("{id:guid}")]
+	public async Task<ActionResult> DeleteAsync(Guid id)
 	{
 		var result = await assignmentService.DeleteAsync(id);
-		return result;
+		return result.IsSuccess
+			? NoContent()
+			: NotFound(result.Error);
 	}
 }

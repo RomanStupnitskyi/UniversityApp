@@ -11,39 +11,21 @@ public class LecturerRepository(UserDbContext dbContext) : ILecturerRepository
 		return await dbContext.Lecturers.ToListAsync();
 	}
 
-	public async Task<Lecturer?> GetByIdAsync(string id)
+	public async Task<Lecturer?> GetByIdAsync(Guid id)
 	{
 		return await dbContext.Lecturers.FindAsync(id);
 	}
 
-	public async Task<bool> AddAsync(Lecturer lecturer)
+	public async Task AddAsync(Lecturer lecturer)
 	{
-		try
-		{
-			await dbContext.Lecturers.AddAsync(lecturer);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		await dbContext.Lecturers.AddAsync(lecturer);
+		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> UpdateAsync(Lecturer lecturer)
+	public async Task UpdateAsync(Lecturer lecturer)
 	{
-		try
-		{
-			dbContext.Lecturers.Update(lecturer);
-			await dbContext.SaveChangesAsync();
-			
-			return true;
-		}
-		catch (Exception)
-		{
-			return false;
-		}
+		dbContext.Lecturers.Update(lecturer);
+		await dbContext.SaveChangesAsync();
 	}
 
 	public async Task DeleteAsync(Lecturer lecturer)
@@ -52,20 +34,13 @@ public class LecturerRepository(UserDbContext dbContext) : ILecturerRepository
 		await dbContext.SaveChangesAsync();
 	}
 
-	public async Task<bool> DeleteByIdAsync(string id)
+	public async Task<bool> DeleteByIdAsync(Guid id)
 	{
 		var lecturer = await GetByIdAsync(id);
 		if (lecturer == null)
-			throw new KeyNotFoundException($"Student with ID {id} not found.");
-		
-		try
-		{
-			await DeleteAsync(lecturer);
-			return true;
-		}
-		catch (Exception)
-		{
 			return false;
-		}
+		
+		await DeleteAsync(lecturer);
+		return true;
 	}
 }

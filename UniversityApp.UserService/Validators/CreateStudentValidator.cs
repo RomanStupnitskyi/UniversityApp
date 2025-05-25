@@ -12,9 +12,7 @@ public sealed class CreateStudentValidator : AbstractValidator<CreateStudentDto>
 		RuleFor(x => x.Id)
 			.NotEmpty()
 			.WithMessage("Id is required.")
-			.Must(id => Guid.TryParse(id, out _))
-			.WithMessage("Id must be a valid GUID.")
-			.Must(id => Guid.TryParse(id, out var parsed) && parsed != Guid.Empty)
+			.Must(id => id != Guid.Empty)
 			.WithMessage("Id must not be an empty GUID.");
 		
 		RuleFor(x => x.StudentNumber)

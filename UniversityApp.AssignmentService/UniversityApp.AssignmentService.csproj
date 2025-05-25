@@ -7,8 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentResults" Version="3.16.0" />
-        <PackageReference Include="FluentResults.Extensions.AspNetCore" Version="0.1.0" />
+        <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
         <PackageReference Include="FluentValidation" Version="12.0.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0" />
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1" />
@@ -25,6 +24,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\UniversityApp.Shared\UniversityApp.Shared.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\Migrations\" />
     </ItemGroup>
 
 </Project>

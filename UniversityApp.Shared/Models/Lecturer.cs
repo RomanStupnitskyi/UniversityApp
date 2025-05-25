@@ -4,8 +4,8 @@ namespace UniversityApp.Shared.Models;
 
 public class Lecturer
 {
-	[Key, Length(36, 36)]
-	public string Id { get; init; }
+	[Key]
+	public Guid Id { get; init; }
 
 	[Length(9, 11)]
 	public string? ContactNumber { get; set; }

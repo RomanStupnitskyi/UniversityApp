@@ -1,4 +1,5 @@
 using FluentValidation;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.CourseService.Data;
@@ -25,6 +26,28 @@ builder.Services.AddDbContext<CourseDbContext>(options =>
 {
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// -------------------------------------------------------------------------------
+// -- MassTransit & RabbitMQ
+// -------------------------------------------------------------------------------
+// builder.Services.AddMassTransit(configurator =>
+// {
+// 	configurator.SetKebabCaseEndpointNameFormatter();
+// 	
+// 	configurator.UsingRabbitMq((context, factoryConfigurator) =>
+// 	{
+// 		factoryConfigurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]
+// 		                                 ?? throw new Exception("RabbitMQ Host is not configured")), hostConfigurator =>
+// 		{
+// 			hostConfigurator.Username(builder.Configuration["MessageBroker:Username"]
+// 			                          ?? throw new Exception("RabbitMQ Username is not configured"));
+// 			hostConfigurator.Password(builder.Configuration["MessageBroker:Password"]
+// 			                          ?? throw new Exception("RabbitMQ Password is not configured"));
+// 		});
+// 			
+// 		factoryConfigurator.ConfigureEndpoints(context);
+// 	});
+// });
 
 // -------------------------------------------------------------------------------
 // -- Dependency Injection

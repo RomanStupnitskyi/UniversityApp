@@ -1,13 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CSharpFunctionalExtensions;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Models;
 
 namespace UniversityApp.UserService.Services;
 
 public interface IStudentService
 {
-	Task<ActionResult> GetAllAsync();
-	Task<ActionResult> GetByIdAsync(string id);
-	Task<ActionResult> CreateAsync(CreateStudentDto dto);
-	Task<ActionResult> UpdateAsync(string id, UpdateStudentDto dto);
-	Task<ActionResult> DeleteAsync(string id);
+	Task<Result<IEnumerable<Student>>> GetAllAsync();
+	Task<Result<Student>> GetByIdAsync(Guid id);
+	Task<Result<Student>> CreateAsync(CreateStudentDto dto);
+	Task<Result<Student>> UpdateAsync(Guid id, UpdateStudentDto dto);
+	Task<Result> DeleteAsync(Guid id);
 }

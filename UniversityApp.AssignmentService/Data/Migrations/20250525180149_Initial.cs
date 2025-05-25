@@ -15,8 +15,8 @@ namespace UniversityApp.AssignmentService.Data.Migrations
                 name: "Assignments",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    CourseId = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
                     StartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -27,6 +27,22 @@ namespace UniversityApp.AssignmentService.Data.Migrations
                 {
                     table.PrimaryKey("PK_Assignments", x => x.Id);
                 });
+
+            migrationBuilder.CreateTable(
+                name: "Submissions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    AssignmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Content = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    SubmittedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Submissions", x => x.Id);
+                });
         }
 
         /// <inheritdoc />
@@ -34,6 +50,9 @@ namespace UniversityApp.AssignmentService.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Assignments");
+
+            migrationBuilder.DropTable(
+                name: "Submissions");
         }
     }
 }

@@ -1,8 +1,9 @@
 using FluentValidation;
+using MassTransit;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.UserService.Data;
-// using UniversityApp.UserService.Exceptions;
 using UniversityApp.UserService.Repositories;
 using UniversityApp.UserService.Services;
 using UniversityApp.UserService.Validators;
@@ -20,19 +21,19 @@ builder.Services.AddOpenApiDocument(options =>
 });
 
 // -------------------------------------------------------------------------------
-// -- Exceptions [Used result pattern instead]
+// -- Exceptions handler
 // -------------------------------------------------------------------------------
-// builder.Services.AddProblemDetails(options =>
-// {
-// 	options.CustomizeProblemDetails = context =>
-// 	{
-// 		context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
-// 		context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
-//
-// 		var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
-// 		context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
-// 	};
-// });
+builder.Services.AddProblemDetails(options =>
+{
+	options.CustomizeProblemDetails = context =>
+	{
+		context.ProblemDetails.Instance = $"{context.HttpContext.Request.Method} {context.HttpContext.Request.Path}";
+		context.ProblemDetails.Extensions.Add("requestId", context.HttpContext.TraceIdentifier);
+
+		var activity = context.HttpContext.Features.Get<IHttpActivityFeature>()?.Activity;
+		context.ProblemDetails.Extensions.TryAdd("traceId", activity?.Id);
+	};
+});
 // builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // -------------------------------------------------------------------------------
@@ -42,6 +43,28 @@ builder.Services.AddDbContext<UserDbContext>(options =>
 {
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// -------------------------------------------------------------------------------
+// -- MassTransit & RabbitMQ
+// -------------------------------------------------------------------------------
+// builder.Services.AddMassTransit(configurator =>
+// {
+// 	configurator.SetKebabCaseEndpointNameFormatter();
+// 	
+// 	configurator.UsingRabbitMq((context, factoryConfigurator) =>
+// 	{
+// 		factoryConfigurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]
+// 		                                 ?? throw new Exception("RabbitMQ Host is not configured")), hostConfigurator =>
+// 		{
+// 			hostConfigurator.Username(builder.Configuration["MessageBroker:Username"]
+// 			                          ?? throw new Exception("RabbitMQ Username is not configured"));
+// 			hostConfigurator.Password(builder.Configuration["MessageBroker:Password"]
+// 			                          ?? throw new Exception("RabbitMQ Password is not configured"));
+// 		});
+// 			
+// 		factoryConfigurator.ConfigureEndpoints(context);
+// 	});
+// });
 
 // -------------------------------------------------------------------------------
 // -- Dependency Injection

@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using UniversityApp.UserService.Data;
@@ -12,11 +11,9 @@ using UniversityApp.UserService.Data;
 namespace UniversityApp.UserService.Data.Migrations
 {
     [DbContext(typeof(UserDbContext))]
-    [Migration("20250518124238_Lecturer")]
-    partial class Lecturer
+    partial class UserDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,10 +22,11 @@ namespace UniversityApp.UserService.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("UniversityApp.UserService.Models.Lecturer", b =>
+            modelBuilder.Entity("UniversityApp.Shared.Models.Lecturer", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ContactEmail")
                         .HasColumnType("text");
@@ -44,10 +42,11 @@ namespace UniversityApp.UserService.Data.Migrations
                     b.ToTable("Lecturers", (string)null);
                 });
 
-            modelBuilder.Entity("UniversityApp.UserService.Models.Student", b =>
+            modelBuilder.Entity("UniversityApp.Shared.Models.Student", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
