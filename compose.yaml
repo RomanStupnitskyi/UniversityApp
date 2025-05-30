@@ -1,0 +1,104 @@
+﻿services:
+  universityapp.database:
+    image: postgres:latest
+    container_name: universityapp.database
+    environment:
+      - POSTGRES_DB=university
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./.containers/universityapp-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - universityapp-net
+        
+  universityapp.rabbitmq:
+    image: rabbitmq:management
+    container_name: universityapp.RabbitMQ
+    hostname: universityapp.rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - universityapp-net
+  
+  universityapp.userservice:
+    image: universityapp.userservice
+    container_name: universityapp.userservice
+    build:
+      context: .
+      dockerfile: UniversityApp.UserService/Dockerfile
+    ports:
+      - "8080"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-users;Username=postgres;Password=postgres
+      - MessageBroker__Hostname=universityapp.rabbitmq
+      - MessageBroker__Port=5672
+      - MessageBroker__Username=guest
+      - MessageBroker__Password=guest
+    networks:
+      - universityapp-net
+
+  universityapp.courseservice:
+    image: universityapp.courseservice
+    container_name: universityapp.courseservice
+    build:
+      context: .
+      dockerfile: UniversityApp.CourseService/Dockerfile
+    ports:
+      - "8081"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8081
+      - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-courses;Username=postgres;Password=postgres
+      - MessageBroker__Hostname=universityapp.rabbitmq
+      - MessageBroker__Port=5672
+      - MessageBroker__Username=guest
+      - MessageBroker__Password=guest
+    networks:
+      - universityapp-net
+
+  universityapp.assignmentservice:
+    image: universityapp.assignmentservice
+    container_name: universityapp.assignmentservice
+    build:
+      context: .
+      dockerfile: UniversityApp.AssignmentService/Dockerfile
+    ports:
+      - "8082"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=8082
+      - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-assignments;Username=postgres;Password=postgres
+      - MessageBroker__Hostname=universityapp.rabbitmq
+      - MessageBroker__Port=5672
+      - MessageBroker__Username=guest
+      - MessageBroker__Password=guest
+    networks:
+      - universityapp-net
+
+  universityapp.apigateway:
+    image: universityapp.apigateway
+    container_name: universityapp.apigateway
+    build:
+      context: .
+      dockerfile: UniversityApp.ApiGateway/Dockerfile
+    ports:
+      - "7000:7000"
+      - "7001:7001"
+    environment:
+      - ASPNETCORE_HTTP_PORTS=7000
+      - ASPNETCORE_HTTPS_PORTS=7001
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=6f003b5a-31b9-4d16-b8cd-2840a649895c
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+    volumes:
+      - C:\Users\RStupnitskyi\.aspnet\https:/https/
+    networks:
+      - universityapp-net
+
+networks:
+  universityapp-net:
+    driver: bridge

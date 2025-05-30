@@ -8,6 +8,7 @@ using UniversityApp.AssignmentService.API;
 using UniversityApp.AssignmentService.Consumers.Assignments;
 using UniversityApp.AssignmentService.Consumers.Courses;
 using UniversityApp.AssignmentService.Data;
+using UniversityApp.AssignmentService.Extensions;
 using UniversityApp.AssignmentService.Repositories;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.AssignmentService.Validators;
@@ -77,8 +78,10 @@ builder.Services.AddMassTransit(configurator =>
 	
 	configurator.UsingRabbitMq((context, factoryConfigurator) =>
 	{
-		factoryConfigurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]
-			?? throw new Exception("RabbitMQ Host is not configured")), hostConfigurator =>
+		factoryConfigurator.Host(builder.Configuration["MessageBroker:Hostname"] ?? throw new Exception("RabbitMQ Hostname is not configured"),
+			ushort.Parse(builder.Configuration["MessageBroker:Port"] ?? "5672"),
+			"/",
+			hostConfigurator =>
 		{
 			hostConfigurator.Username(builder.Configuration["MessageBroker:Username"]
 				?? throw new Exception("RabbitMQ Username is not configured"));
@@ -118,6 +121,7 @@ var app = builder.Build(); // Build the application pipeline
 // -------------------------------------------------------------------------------
 // -- Middlewares
 // -------------------------------------------------------------------------------
+app.ApplyMigrations(); // Apply database migrations at startup
 app.UseOpenApi(); // Serves the registered OpenAPI/Swagger documents
 app.UseSwaggerUi(); // Serves the Swagger UI
 

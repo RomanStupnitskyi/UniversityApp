@@ -5,11 +5,11 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/{everything}",
       "SwaggerKey": "users",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
           {
-          "Host": "localhost",
-          "Port": 7155
+          "Host": "universityapp.userservice",
+          "Port": 8080
           }
       ]
     },
@@ -18,11 +18,11 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/courses/{everything}",
       "SwaggerKey": "courses",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7191
+          "Host": "universityapp.courseservice",
+          "Port": 8081
         }
       ]
     },
@@ -31,11 +31,11 @@
       "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
       "DownstreamPathTemplate": "/assignments/{everything}",
       "SwaggerKey": "assignments",
-      "DownstreamScheme": "https",
+      "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 7115
+          "Host": "universityapp.assignmentservice",
+          "Port": 8082
         }
       ]
     }
@@ -50,7 +50,7 @@
         {
           "Name": "Users API",
           "Version": "v1",
-          "Url": "https://localhost:7155/swagger/v1/swagger.json"
+          "Url": "http://universityapp.userservice:8080/swagger/v1/swagger.json"
         }
       ]
     },
@@ -60,7 +60,7 @@
         {
           "Name": "Courses API",
           "Version": "v1",
-          "Url": "https://localhost:7191/swagger/v1/swagger.json"
+          "Url": "http://universityapp.courseservice:8081/swagger/v1/swagger.json"
         }
       ]
     },
@@ -70,7 +70,7 @@
         {
           "Name": "Assignments API",
           "Version": "v1",
-          "Url": "https://localhost:7115/swagger/v1/swagger.json"
+          "Url": "http://universityapp.assignmentservice:8082/swagger/v1/swagger.json"
         }
       ]
     }

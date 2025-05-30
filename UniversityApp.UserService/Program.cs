@@ -1,26 +1,15 @@
-using System.Net;
 using FluentValidation;
 using MassTransit;
 using Microsoft.AspNetCore.Http.Features;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.UserService.Data;
+using UniversityApp.UserService.Extensions;
 using UniversityApp.UserService.Repositories;
 using UniversityApp.UserService.Services;
 using UniversityApp.UserService.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// -------------------------------------------------------------------------------
-// -- Forwarded Headers
-// -------------------------------------------------------------------------------
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-	options.ForwardedHeaders = ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedProto;
-	options.KnownProxies.Clear();
-	options.KnownProxies.Add(IPAddress.Parse("127.0.0.1"));
-});
 
 // -------------------------------------------------------------------------------
 // -- CORS
@@ -76,8 +65,10 @@ builder.Services.AddMassTransit(configurator =>
 	
 	configurator.UsingRabbitMq((context, factoryConfigurator) =>
 	{
-		factoryConfigurator.Host(new Uri(builder.Configuration["MessageBroker:Host"]
-		                                 ?? throw new Exception("RabbitMQ Host is not configured")), hostConfigurator =>
+		factoryConfigurator.Host(builder.Configuration["MessageBroker:Hostname"] ?? throw new Exception("RabbitMQ Hostname is not configured"),
+			ushort.Parse(builder.Configuration["MessageBroker:Port"] ?? "5672"),
+			"/",
+			hostConfigurator =>
 		{
 			hostConfigurator.Username(builder.Configuration["MessageBroker:Username"]
 			                          ?? throw new Exception("RabbitMQ Username is not configured"));
@@ -118,8 +109,8 @@ var app = builder.Build(); // Build the application pipeline
 // -------------------------------------------------------------------------------
 // -- Middlewares
 // -------------------------------------------------------------------------------
-app.UseForwardedHeaders(); // Use forwarded headers for reverse proxy support
 app.UseCors("AllowAllOrigins"); // Apply CORS policy to allow all origins, methods, and headers
+app.ApplyMigrations(); // Apply database migrations at startup
 app.UseOpenApi(); // Serves the registered OpenAPI/Swagger documents
 app.UseSwaggerUi(options =>
 {
