@@ -9,8 +9,8 @@ using UniversityApp.Shared.Events;
 namespace UniversityApp.CourseService.Services;
 
 public class CourseService(
-	ICourseRepository courseRepository
-	// IPublishEndpoint publishEndpoint
+	ICourseRepository courseRepository,
+	IPublishEndpoint publishEndpoint
 	) : ICourseService
 {
 	public async Task<Result<IEnumerable<Course>>> GetAllAsync()
@@ -61,10 +61,10 @@ public class CourseService(
 		if (!success)
 			return Result.Failure($"Course with ID=\"{id}\" not found");
 
-		// await publishEndpoint.Publish(new CourseDeletedEvent
-		// {
-		// 	CourseId = id
-		// });
+		await publishEndpoint.Publish(new CourseDeletedEvent
+		{
+			CourseId = id
+		});
 
 		return Result.Success($"Course with ID=\"{id}\" deleted successfully");
 	}

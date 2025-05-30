@@ -5,7 +5,7 @@ using UniversityApp.Shared.DTOs;
 namespace UniversityApp.AssignmentService.Controllers;
 
 [ApiController]
-[Route("/{assignmentId}/submissions")]
+[Route("/assignments/{assignmentId:guid}/submissions")]
 public class SubmissionController(ISubmissionService submissionService) : ControllerBase
 {
 	[HttpGet]
@@ -31,7 +31,7 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 	{
 		var result = await submissionService.CreateAsync(assignmentId, dto);
 		return result.IsSuccess
-			? CreatedAtAction(nameof(GetById), new { assignmentId, submissionId = result.Value.Id }, result.Value)
+			? Ok(result.Value)
 			: BadRequest(result.Error);
 	}
 	

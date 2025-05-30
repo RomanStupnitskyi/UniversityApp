@@ -12,8 +12,8 @@ namespace UniversityApp.AssignmentService.Services;
 
 public class AssignmentService(
 	IAssignmentRepository assignmentRepository,
-	ICourseAPI courseApi
-	// IPublishEndpoint publishEndpoint
+	ICourseAPI courseApi,
+	IPublishEndpoint publishEndpoint
 	) : IAssignmentService
 {
 	public async Task<Result<IEnumerable<Assignment>>> GetAllAsync()
@@ -28,6 +28,15 @@ public class AssignmentService(
 		return assignment == null
 			? Result.Failure<Assignment>($"Assignment with ID=\"{id}\" not found")
 			: Result.Success(assignment);
+	}
+
+	[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+	public async Task<Result<IEnumerable<Assignment>>> GetByCourseIdAsync(Guid id)
+	{
+		var assignments = await assignmentRepository.GetByCourseIdAsync(id);
+		return !assignments.Any()
+			? Result.Failure<IEnumerable<Assignment>>($"No assignments found for course ID=\"{id}\"")
+			: Result.Success(assignments);
 	}
 
 	public async Task<Result<Assignment>> CreateAsync(CreateAssignmentDto dto)
@@ -84,11 +93,31 @@ public class AssignmentService(
 		if (!success)
 			return Result.Failure($"Assignment with ID=\"{id}\" not found");
 
-		// await publishEndpoint.Publish(new AssignmentDeletedEvent
-		// {
-		// 	AssignmentId = id
-		// });
+		await publishEndpoint.Publish(new AssignmentDeletedEvent
+		{
+			AssignmentId = id
+		});
 
 		return Result.Success($"Assignment with ID=\"{id}\" deleted successfully");
+	}
+
+	[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+	public async Task<Result> DeleteByCourseIdAsync(Guid courseId)
+	{
+		var assignments = await assignmentRepository.GetByCourseIdAsync(courseId);
+		if (!assignments.Any())
+			return Result.Failure($"No assignments found for course ID=\"{courseId}\"");
+
+		foreach (var assignment in assignments)
+		{
+			await assignmentRepository.DeleteAsync(assignment);
+		}
+
+		await publishEndpoint.Publish(new AssignmentsDeletedEvent
+		{
+			Assignments = assignments.ToList()
+		});
+
+		return Result.Success($"All assignments for course ID=\"{courseId}\" deleted successfully");
 	}
 }

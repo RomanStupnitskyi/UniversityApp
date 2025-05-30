@@ -62,9 +62,22 @@ public class SubmissionRepository(AssignmentDbContext assignmentDbContext) : ISu
 		var submission = await assignmentDbContext.Submissions
 			.FirstOrDefaultAsync(s => s.Id == submissionId);
 		if (submission == null)
-			throw new KeyNotFoundException($"Submission with ID=\"{submissionId}\" not found.");
+			return false;
 
 		assignmentDbContext.Submissions.Remove(submission);
+		await assignmentDbContext.SaveChangesAsync();
+		return true;
+	}
+
+	public async Task<bool> DeleteByAssignmentIdsAsync(IEnumerable<Guid> assignmentIds)
+	{
+		var submissions = await assignmentDbContext.Submissions
+			.Where(s => assignmentIds.Contains(s.AssignmentId))
+			.ToListAsync();
+		if (submissions.Count == 0)
+			return false;
+
+		assignmentDbContext.Submissions.RemoveRange(submissions);
 		await assignmentDbContext.SaveChangesAsync();
 		return true;
 	}

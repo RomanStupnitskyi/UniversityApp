@@ -32,7 +32,7 @@ public class LecturersController(ILecturerService lecturerService) : ControllerB
 	{
 		var result = await lecturerService.CreateAsync(dto);
 		return result.IsSuccess
-			? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
+			? Ok(result.Value)
 			: Conflict(result.Error);
 	}
 	

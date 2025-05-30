@@ -78,4 +78,30 @@ public class SubmissionService(
 		await submissionRepository.DeleteAsync(submission);
 		return Result.Success();
 	}
+
+	public async Task<Result> DeleteByAssignmentIdsAsync(IEnumerable<Guid> assignmentIds)
+	{
+		var submissionIdsList = assignmentIds.ToList();
+		if (submissionIdsList.Count == 0)
+			return Result.Failure("No assignment IDs provided for deletion");
+
+		var result = await submissionRepository.DeleteByAssignmentIdsAsync(submissionIdsList);
+		return result
+			? Result.Success()
+			: Result.Failure("Failed to delete submissions with the provided assignment IDs");
+	}
+
+	public async Task<Result> DeleteByAssignmentIdAsync(Guid assignmentId)
+	{
+		var assignment = await assignmentRepository.GetByIdAsync(assignmentId);
+		if (assignment == null)
+			return Result.Failure($"Assignment with ID=\"{assignmentId}\" not found");
+		
+		var submissions = await submissionRepository.GetAllAsync(assignmentId);
+		if (!submissions.Any())
+			return Result.Success(); // No submissions to delete
+		
+		await submissionRepository.DeleteByAssignmentIdAsync(assignmentId);
+		return Result.Success();
+	}
 }

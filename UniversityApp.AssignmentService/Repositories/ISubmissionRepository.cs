@@ -12,4 +12,5 @@ public interface ISubmissionRepository
 	Task DeleteAsync(Submission submission);
 	Task DeleteByAssignmentIdAsync(Guid assignmentId);
 	Task<bool> DeleteByIdAsync(Guid submissionId);
+	Task<bool> DeleteByAssignmentIdsAsync(IEnumerable<Guid> submissionId);
 }

@@ -1,0 +1,78 @@
+﻿{
+  "Routes": [
+    {
+      "UpstreamPathTemplate": "/api/users/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/{everything}",
+      "SwaggerKey": "users",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+          {
+          "Host": "localhost",
+          "Port": 7155
+          }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/courses/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/courses/{everything}",
+      "SwaggerKey": "courses",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7191
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/api/assignments/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "DownstreamPathTemplate": "/assignments/{everything}",
+      "SwaggerKey": "assignments",
+      "DownstreamScheme": "https",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 7115
+        }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "https://localhost:7000"
+  },
+  "SwaggerEndPoints": [
+    {
+      "Key": "users",
+      "Config": [
+        {
+          "Name": "Users API",
+          "Version": "v1",
+          "Url": "https://localhost:7155/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "courses",
+      "Config": [
+        {
+          "Name": "Courses API",
+          "Version": "v1",
+          "Url": "https://localhost:7191/swagger/v1/swagger.json"
+        }
+      ]
+    },
+    {
+      "Key": "assignments",
+      "Config": [
+        {
+          "Name": "Assignments API",
+          "Version": "v1",
+          "Url": "https://localhost:7115/swagger/v1/swagger.json"
+        }
+      ]
+    }
+  ]
+}

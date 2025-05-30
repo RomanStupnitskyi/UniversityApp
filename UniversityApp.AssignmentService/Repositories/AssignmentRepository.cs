@@ -19,6 +19,14 @@ public class AssignmentRepository(AssignmentDbContext assignmentDbContext) : IAs
 		return assignment;
 	}
 
+	public async Task<IEnumerable<Assignment>> GetByCourseIdAsync(Guid courseId)
+	{
+		var assignments = await assignmentDbContext.Assignments
+			.Where(a => a.CourseId == courseId)
+			.ToListAsync();
+		return assignments;
+	}
+
 	public async Task AddAsync(Assignment assignment)
 	{
 		await assignmentDbContext.Assignments.AddAsync(assignment);

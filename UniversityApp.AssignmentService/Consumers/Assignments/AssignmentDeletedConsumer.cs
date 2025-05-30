@@ -1,13 +1,12 @@
 ﻿using MassTransit;
 using UniversityApp.AssignmentService.Repositories;
+using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.Events;
 
 namespace UniversityApp.AssignmentService.Consumers.Assignments;
 
-public sealed class AssignmentDeletedConsumer(
-	ISubmissionRepository submissionRepository,
-	IPublishEndpoint publishEndpoint
-	) : IConsumer<AssignmentDeletedEvent>
+public sealed class AssignmentDeletedConsumer(ISubmissionService submissionService)
+	: IConsumer<AssignmentDeletedEvent>
 {
 	public async Task Consume(ConsumeContext<AssignmentDeletedEvent> context)
 	{
@@ -17,6 +16,6 @@ public sealed class AssignmentDeletedConsumer(
 			DeletedAt = context.Message.DeletedAt
 		};
 
-		await submissionRepository.DeleteByAssignmentIdAsync(assignment.AssignmentId);
+		await submissionService.DeleteByAssignmentIdAsync(assignment.AssignmentId);
 	}
 }

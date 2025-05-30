@@ -5,7 +5,7 @@ using UniversityApp.Shared.DTOs;
 namespace UniversityApp.AssignmentService.Controllers;
 
 [ApiController]
-[Route("/")]
+[Route("/assignments")]
 public class AssignmentsController(IAssignmentService assignmentService) : ControllerBase
 {
 	[HttpGet]
@@ -31,7 +31,7 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	{
 		var result = await assignmentService.CreateAsync(dto);
 		return result.IsSuccess
-			? CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.Id }, result.Value)
+			? Ok(result.Value)
 			: BadRequest(result.Error);
 	}
 	

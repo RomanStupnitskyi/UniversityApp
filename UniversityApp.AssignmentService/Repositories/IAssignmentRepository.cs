@@ -6,6 +6,7 @@ public interface IAssignmentRepository
 {
 	Task<IEnumerable<Assignment>> GetAllAsync();
 	Task<Assignment?> GetByIdAsync(Guid id);
+	Task<IEnumerable<Assignment>> GetByCourseIdAsync(Guid courseId);
 	Task AddAsync(Assignment assignment);
 	Task UpdateAsync(Assignment assignment);
 	Task DeleteAsync(Assignment assignment);

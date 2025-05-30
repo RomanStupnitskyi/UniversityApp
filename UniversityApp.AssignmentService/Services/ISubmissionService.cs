@@ -12,4 +12,6 @@ public interface ISubmissionService
 	Task<Result<Submission>> CreateAsync(Guid assignmentId, CreateSubmissionDto dto);
 	Task<Result<Submission>> UpdateAsync(Guid assignmentId, Guid submissionId, UpdateSubmissionDto dto);
 	Task<Result> DeleteAsync(Guid assignmentId, Guid submissionId);
+	Task<Result> DeleteByAssignmentIdAsync(Guid assignmentId);
+	Task<Result> DeleteByAssignmentIdsAsync(IEnumerable<Guid> submissionIds);
 }

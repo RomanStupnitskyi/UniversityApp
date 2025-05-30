@@ -31,7 +31,7 @@ public class StudentsController(IStudentService studentService) : ControllerBase
 	{
 		var result = await studentService.CreateAsync(dto);
 		return result.IsSuccess
-			? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value)
+			? Ok(result.Value)
 			: BadRequest(result.Error);
 	}
 	

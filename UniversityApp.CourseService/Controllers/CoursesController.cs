@@ -5,7 +5,7 @@ using UniversityApp.Shared.DTOs;
 namespace UniversityApp.CourseService.Controllers;
 
 [ApiController]
-[Route("/")]
+[Route("/courses")]
 public class CoursesController(ICourseService courseService) : ControllerBase
 {
 	[HttpGet]
@@ -31,7 +31,7 @@ public class CoursesController(ICourseService courseService) : ControllerBase
 	{
 		var result = await courseService.CreateAsync(dto);
 		return result.IsSuccess
-			? CreatedAtAction(nameof(GetByIdAsync), new { id = result.Value.Id }, result.Value)
+			? Ok(result.Value)
 			: BadRequest(result.Error);
 	}
 	
