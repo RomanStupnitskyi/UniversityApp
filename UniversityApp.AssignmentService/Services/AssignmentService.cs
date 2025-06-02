@@ -4,9 +4,11 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.API;
 using UniversityApp.AssignmentService.Repositories;
+using UniversityApp.AssignmentService.Specifications;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Events;
 using UniversityApp.Shared.Models;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.AssignmentService.Services;
 
@@ -16,9 +18,11 @@ public class AssignmentService(
 	IPublishEndpoint publishEndpoint
 	) : IAssignmentService
 {
-	public async Task<Result<IEnumerable<Assignment>>> GetAllAsync()
+	public async Task<Result<IEnumerable<Assignment>>> GetAllAsync(AssignmentQuery query)
 	{
-		var assignments = await assignmentRepository.GetAllAsync();
+		var specification = new AssignmentSpecification(query);
+		
+		var assignments = await assignmentRepository.GetAllAsync(specification);
 		return Result.Success(assignments);
 	}
 
@@ -101,7 +105,6 @@ public class AssignmentService(
 		return Result.Success($"Assignment with ID=\"{id}\" deleted successfully");
 	}
 
-	[SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
 	public async Task<Result> DeleteByCourseIdAsync(Guid courseId)
 	{
 		var assignments = await assignmentRepository.GetByCourseIdAsync(courseId);

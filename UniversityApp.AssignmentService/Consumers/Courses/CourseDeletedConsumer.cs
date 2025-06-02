@@ -14,10 +14,6 @@ public sealed class CourseDeletedConsumer(IAssignmentService assignmentService) 
 			DeletedAt = context.Message.DeletedAt
 		};
 		
-		var result = await assignmentService.GetByCourseIdAsync(course.CourseId);
-		if (result.IsFailure)
-			return;
-		
 		await assignmentService.DeleteByCourseIdAsync(course.CourseId);
 	}
 }

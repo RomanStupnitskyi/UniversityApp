@@ -11,7 +11,10 @@
           "Host": "universityapp.userservice",
           "Port": 8080
           }
-      ]
+      ],
+      "DownstreamHeaderTransform": {
+        "Authorization": "Copy"
+      }
     },
     {
       "UpstreamPathTemplate": "/api/courses/{everything}",
@@ -24,7 +27,10 @@
           "Host": "universityapp.courseservice",
           "Port": 8081
         }
-      ]
+      ],
+      "DownstreamHeaderTransform": {
+        "Authorization": "Copy"
+      }
     },
     {
       "UpstreamPathTemplate": "/api/assignments/{everything}",
@@ -37,7 +43,10 @@
           "Host": "universityapp.assignmentservice",
           "Port": 8082
         }
-      ]
+      ],
+      "DownstreamHeaderTransform": {
+        "Authorization": "Copy"
+      }
     }
   ],
   "GlobalConfiguration": {

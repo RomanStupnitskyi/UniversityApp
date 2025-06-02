@@ -1,10 +1,11 @@
-﻿using UniversityApp.Shared.Models;
+﻿using UniversityApp.AssignmentService.Specifications;
+using UniversityApp.Shared.Models;
 
 namespace UniversityApp.AssignmentService.Repositories;
 
 public interface IAssignmentRepository
 {
-	Task<IEnumerable<Assignment>> GetAllAsync();
+	Task<IEnumerable<Assignment>> GetAllAsync(AssignmentSpecification specification);
 	Task<Assignment?> GetByIdAsync(Guid id);
 	Task<IEnumerable<Assignment>> GetByCourseIdAsync(Guid courseId);
 	Task AddAsync(Assignment assignment);

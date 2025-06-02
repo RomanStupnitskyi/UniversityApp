@@ -1,14 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UniversityApp.AssignmentService.Data;
+using UniversityApp.AssignmentService.Specifications;
 using UniversityApp.Shared.Models;
 
 namespace UniversityApp.AssignmentService.Repositories;
 
 public class AssignmentRepository(AssignmentDbContext assignmentDbContext) : IAssignmentRepository
 {
-	public async Task<IEnumerable<Assignment>> GetAllAsync()
+	public async Task<IEnumerable<Assignment>> GetAllAsync(AssignmentSpecification specification)
 	{
-		var assignments = await assignmentDbContext.Assignments.ToListAsync();
+		var assignments = await assignmentDbContext
+			.Assignments
+			.WithSpecification(specification)
+			.ToListAsync();
 		return assignments;
 	}
 

@@ -11,6 +11,7 @@ public class StudentService(IStudentRepository studentRepository) : IStudentServ
 	public async Task<Result<IEnumerable<Student>>> GetAllAsync()
 	{
 		var students = await studentRepository.GetAllAsync();
+		
 		return Result.Success(students);
 	}
 

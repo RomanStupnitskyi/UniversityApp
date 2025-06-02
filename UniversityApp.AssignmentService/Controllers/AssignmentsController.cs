@@ -1,17 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Events;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.AssignmentService.Controllers;
 
 [ApiController]
 [Route("/assignments")]
-public class AssignmentsController(IAssignmentService assignmentService) : ControllerBase
+[Authorize]
+public class AssignmentsController(
+		IAssignmentService assignmentService,
+		IPublishEndpoint publishEndpoint
+	) : ControllerBase
 {
 	[HttpGet]
-	public async Task<ActionResult> GetAllAsync()
+	public async Task<ActionResult> GetAllAsync([FromQuery] AssignmentQuery query)
 	{
-		var result = await assignmentService.GetAllAsync();
+		var result = await assignmentService.GetAllAsync(query);
 		return result.IsSuccess
 			? Ok(result.Value)
 			: NotFound(result.Error);
@@ -27,6 +35,7 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	}
 	
 	[HttpPost]
+	[Authorize(Policy = "RequireLecturerRole")]
 	public async Task<ActionResult> CreateAsync([FromBody] CreateAssignmentDto dto)
 	{
 		var result = await assignmentService.CreateAsync(dto);
@@ -36,6 +45,7 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	}
 	
 	[HttpPut("{id:guid}")]
+	[Authorize(Policy = "RequireLecturerRole")]
 	public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateAssignmentDto dto)
 	{
 		var result = await assignmentService.UpdateAsync(id, dto);
@@ -45,9 +55,16 @@ public class AssignmentsController(IAssignmentService assignmentService) : Contr
 	}
 	
 	[HttpDelete("{id:guid}")]
+	[Authorize(Policy = "RequireLecturerRole")]
 	public async Task<ActionResult> DeleteAsync(Guid id)
 	{
 		var result = await assignmentService.DeleteAsync(id);
+
+		await publishEndpoint.Publish(new AssignmentDeletedEvent
+		{
+			AssignmentId = id
+		});
+		
 		return result.IsSuccess
 			? NoContent()
 			: NotFound(result.Error);

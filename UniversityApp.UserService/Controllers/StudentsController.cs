@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.UserService.Services;
 
@@ -6,6 +7,7 @@ namespace UniversityApp.UserService.Controllers;
 
 [ApiController]
 [Route("/students")]
+[Authorize]
 public class StudentsController(IStudentService studentService) : ControllerBase
 {
 	[HttpGet]

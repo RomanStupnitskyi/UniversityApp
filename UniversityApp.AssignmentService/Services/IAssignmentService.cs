@@ -1,12 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.AssignmentService.Services;
 
 public interface IAssignmentService
 {
-	Task<Result<IEnumerable<Assignment>>> GetAllAsync();
+	Task<Result<IEnumerable<Assignment>>> GetAllAsync(AssignmentQuery query);
 	Task<Result<Assignment>> GetByIdAsync(Guid id);
 	Task<Result<IEnumerable<Assignment>>> GetByCourseIdAsync(Guid id);
 	Task<Result<Assignment>> CreateAsync(CreateAssignmentDto dto);

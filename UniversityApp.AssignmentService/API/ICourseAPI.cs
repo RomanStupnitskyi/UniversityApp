@@ -5,6 +5,6 @@ namespace UniversityApp.AssignmentService.API;
 
 public interface ICourseAPI
 {
-	[Get("/{id}")]
+	[Get("/courses/{id}")]
 	Task<HttpResponseMessage> GetCourseByIdAsync(Guid id);
 }

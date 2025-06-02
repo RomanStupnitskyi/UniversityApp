@@ -13,9 +13,27 @@
     networks:
       - universityapp-net
         
+  universityapp.keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: universityapp.keycloak
+    hostname: universityapp.keycloak
+    ports:
+      - "8080:8080"
+    environment:
+      - KC_HEALTH_ENABLED=true
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_DB=postgres
+      - KC_DB_URL=jdbc:postgresql://universityapp.database:5432/university
+      - KC_DB_USERNAME=postgres
+      - KC_DB_PASSWORD=postgres
+    command: start-dev
+    networks:
+      - universityapp-net
+        
   universityapp.rabbitmq:
     image: rabbitmq:management
-    container_name: universityapp.RabbitMQ
+    container_name: universityapp.rabbitmq
     hostname: universityapp.rabbitmq
     ports:
       - "5672:5672"
@@ -41,6 +59,11 @@
       - MessageBroker__Port=5672
       - MessageBroker__Username=guest
       - MessageBroker__Password=guest
+      - Keycloak__AuthorizationUrl=http://localhost:8080/realms/university/protocol/openid-connect/auth
+      - Keycloak__TokenUrl=http://localhost:8080/realms/university/protocol/openid-connect/token
+      - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
+      - Authentication__AppRealmUrl=http://localhost:8080/realms/university
+      - Authentication__Audience=account
     networks:
       - universityapp-net
 
@@ -59,6 +82,11 @@
       - MessageBroker__Port=5672
       - MessageBroker__Username=guest
       - MessageBroker__Password=guest
+      - Keycloak__AuthorizationUrl=http://localhost:8080/realms/university/protocol/openid-connect/auth
+      - Keycloak__TokenUrl=http://localhost:8080/realms/university/protocol/openid-connect/token
+      - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
+      - Authentication__AppRealmUrl=http://localhost:8080/realms/university
+      - Authentication__Audience=account
     networks:
       - universityapp-net
 
@@ -77,6 +105,11 @@
       - MessageBroker__Port=5672
       - MessageBroker__Username=guest
       - MessageBroker__Password=guest
+      - Keycloak__AuthorizationUrl=http://localhost:8080/realms/university/protocol/openid-connect/auth
+      - Keycloak__TokenUrl=http://localhost:8080/realms/university/protocol/openid-connect/token
+      - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
+      - Authentication__AppRealmUrl=http://localhost:8080/realms/university
+      - Authentication__Audience=account
     networks:
       - universityapp-net
 
@@ -87,11 +120,11 @@
       context: .
       dockerfile: UniversityApp.ApiGateway/Dockerfile
     ports:
-      - "7000:7000"
-      - "7001:7001"
+      - "5000:5000"
+      - "5001:5001"
     environment:
-      - ASPNETCORE_HTTP_PORTS=7000
-      - ASPNETCORE_HTTPS_PORTS=7001
+      - ASPNETCORE_HTTP_PORTS=5000
+      - ASPNETCORE_HTTPS_PORTS=5001
       - ASPNETCORE_Kestrel__Certificates__Default__Password=6f003b5a-31b9-4d16-b8cd-2840a649895c
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     volumes:

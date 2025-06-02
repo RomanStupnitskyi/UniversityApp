@@ -1,7 +1,9 @@
 using FluentValidation;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.CourseService.Data;
 using UniversityApp.CourseService.Extensions;
@@ -15,11 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // -- Swagger
 // -------------------------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddOpenApiDocument(options =>
-{
-	options.DocumentName = "v1";
-	options.Title = "UniversityApp Courses Service API";
-});
+builder.Services.AddSwaggerGenWithAuthentication(builder.Configuration);
 
 // -------------------------------------------------------------------------------
 // -- Exceptions handler
@@ -44,6 +42,39 @@ builder.Services.AddDbContext<CourseDbContext>(options =>
 {
 	options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+// -------------------------------------------------------------------------------
+// -- Authentication
+// -------------------------------------------------------------------------------
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("admin"))
+	.AddPolicy("RequireLecturerRole", policy => policy.RequireRole("lecturer"))
+	.AddPolicy("RequireStudentRole", policy => policy.RequireRole("student"));
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
+	{
+		options.Authority = builder.Configuration["Authentication:DockerRealmUrl"]
+		                    ?? throw new Exception("Docker Realm URL for JWT Bearer is not configured");
+		options.Audience = builder.Configuration["Authentication:Audience"]
+		                   ?? throw new Exception("Audience for JWT Bearer is not configured");
+		options.MetadataAddress = builder.Configuration["Authentication:MetadataAddress"]
+		                          ?? throw new Exception("Metadata address for JWT Bearer is not configured");
+
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateAudience = false
+		};
+		
+		options.RequireHttpsMetadata = false;
+
+		options.TokenValidationParameters.ValidIssuers =
+		[
+			builder.Configuration["Authentication:RealmUrl"]
+			?? throw new Exception("Realm URL for JWT Bearer is not configured"),
+			builder.Configuration["Authentication:AppRealmUrl"]
+			?? throw new Exception("App Realm URL for JWT Bearer is not configured")
+		];
+	});
 
 // -------------------------------------------------------------------------------
 // -- MassTransit & RabbitMQ
@@ -94,8 +125,15 @@ var app = builder.Build(); // Build the application pipeline
 // -- Middlewares
 // -------------------------------------------------------------------------------
 app.ApplyMigrations(); // Apply database migrations at startup
-app.UseOpenApi(); // Serves the registered OpenAPI/Swagger documents
-app.UseSwaggerUi(); // Serves the Swagger UI
+app.UseSwagger(); // Enable Swagger for API documentation
+app.UseSwaggerUI(options =>
+{
+	options.SwaggerEndpoint("/swagger/v1/swagger.json", "UniversityApp User Service API V1");
+	
+	options.OAuthClientId("university-frontend-app");
+	options.OAuthUsePkce();
+	options.OAuthScopes("openid", "profile", "email");
+});
 
 app.UseHttpsRedirection(); // Redirect HTTP requests to HTTPS
 app.UseAuthorization(); // Enables authorization middleware
