@@ -7,7 +7,7 @@ namespace UniversityApp.CourseService.Controllers;
 
 [ApiController]
 [Route("/courses")]
-[Authorize]
+// [Authorize] // Temporarily disabled until microservices communication is set up
 public class CoursesController(ICourseService courseService) : ControllerBase
 {
 	[HttpGet]

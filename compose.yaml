@@ -51,9 +51,9 @@
       context: .
       dockerfile: UniversityApp.UserService/Dockerfile
     ports:
-      - "8080"
+      - "8081"
     environment:
-      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTP_PORTS=8081
       - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-users;Username=postgres;Password=postgres
       - MessageBroker__Hostname=universityapp.rabbitmq
       - MessageBroker__Port=5672
@@ -74,9 +74,9 @@
       context: .
       dockerfile: UniversityApp.CourseService/Dockerfile
     ports:
-      - "8081"
+      - "8082"
     environment:
-      - ASPNETCORE_HTTP_PORTS=8081
+      - ASPNETCORE_HTTP_PORTS=8082
       - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-courses;Username=postgres;Password=postgres
       - MessageBroker__Hostname=universityapp.rabbitmq
       - MessageBroker__Port=5672
@@ -97,14 +97,16 @@
       context: .
       dockerfile: UniversityApp.AssignmentService/Dockerfile
     ports:
-      - "8082"
+      - "8083"
     environment:
-      - ASPNETCORE_HTTP_PORTS=8082
+      - ASPNETCORE_HTTP_PORTS=8083
       - ConnectionStrings__DefaultConnection=Host=universityapp.database;Database=university-assignments;Username=postgres;Password=postgres
       - MessageBroker__Hostname=universityapp.rabbitmq
       - MessageBroker__Port=5672
       - MessageBroker__Username=guest
       - MessageBroker__Password=guest
+      - API__CourseAPI=http://universityapp.courseservice:8082
+      - API__UserAPI=http://universityapp.userservice:8081
       - Keycloak__AuthorizationUrl=http://localhost:8080/realms/university/protocol/openid-connect/auth
       - Keycloak__TokenUrl=http://localhost:8080/realms/university/protocol/openid-connect/token
       - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
