@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.CourseService.Data;
 using UniversityApp.CourseService.Extensions;
@@ -34,6 +36,27 @@ builder.Services.AddProblemDetails(options =>
 	};
 });
 // builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// -------------------------------------------------------------------------------
+// -- OpenTelemetry
+// -------------------------------------------------------------------------------
+builder.Services
+	.AddOpenTelemetry()
+	.ConfigureResource(resource => resource.AddService("UniversityApp.CourseService"))
+	.WithTracing(options =>
+	{
+		options
+			.AddAspNetCoreInstrumentation()
+			.AddHttpClientInstrumentation()
+			.AddEntityFrameworkCoreInstrumentation(instrumentationOptions => instrumentationOptions.SetDbStatementForText = true)
+			.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+
+		options.AddOtlpExporter(configure =>
+		{
+			configure.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+			                             ?? throw new Exception("OTLP Exporter Endpoint is not configured"));
+		});
+	});
 
 // -------------------------------------------------------------------------------
 // -- Database

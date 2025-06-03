@@ -1,5 +1,7 @@
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,25 @@ var builder = WebApplication.CreateBuilder(args);
 // -- Add services to the container.
 // ----------------------------------------------------------------
 builder.Services.AddEndpointsApiExplorer();
+
+// -------------------------------------------------------------------------------
+// -- OpenTelemetry
+// -------------------------------------------------------------------------------
+builder.Services
+	.AddOpenTelemetry()
+	.ConfigureResource(resource => resource.AddService("UniversityApp.ApiGateway"))
+	.WithTracing(options =>
+	{
+		options
+			.AddAspNetCoreInstrumentation()
+			.AddHttpClientInstrumentation();
+
+		options.AddOtlpExporter(configure =>
+		{
+			configure.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+			                             ?? throw new Exception("OTLP Exporter Endpoint is not configured"));
+		});
+	});
 
 // ----------------------------------------------------------------
 // -- Add Ocelot configuration from JSON file.

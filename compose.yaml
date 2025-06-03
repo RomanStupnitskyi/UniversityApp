@@ -43,6 +43,16 @@
       - RABBITMQ_DEFAULT_PASS=guest
     networks:
       - universityapp-net
+    
+  universityapp.jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: universityapp.jaeger
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "16686:16686"
+    networks:
+      - universityapp-net
   
   universityapp.userservice:
     image: universityapp.userservice
@@ -64,6 +74,7 @@
       - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
       - Authentication__AppRealmUrl=http://localhost:8080/realms/university
       - Authentication__Audience=account
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://universityapp.jaeger:4317
     networks:
       - universityapp-net
 
@@ -87,6 +98,7 @@
       - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
       - Authentication__AppRealmUrl=http://localhost:8080/realms/university
       - Authentication__Audience=account
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://universityapp.jaeger:4317
     networks:
       - universityapp-net
 
@@ -112,6 +124,7 @@
       - Authentication__DockerRealmUrl=http://universityapp.keycloak:8080/realms/university
       - Authentication__AppRealmUrl=http://localhost:8080/realms/university
       - Authentication__Audience=account
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://universityapp.jaeger:4317
     networks:
       - universityapp-net
 
@@ -129,6 +142,7 @@
       - ASPNETCORE_HTTPS_PORTS=5001
       - ASPNETCORE_Kestrel__Certificates__Default__Password=6f003b5a-31b9-4d16-b8cd-2840a649895c
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://universityapp.jaeger:4317
     volumes:
       - C:\Users\RStupnitskyi\.aspnet\https:/https/
     networks:

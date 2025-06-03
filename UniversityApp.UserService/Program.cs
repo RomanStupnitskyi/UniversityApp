@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.UserService.Data;
 using UniversityApp.UserService.Extensions;
@@ -16,13 +18,13 @@ var builder = WebApplication.CreateBuilder(args);
 // -------------------------------------------------------------------------------
 // -- CORS
 // -------------------------------------------------------------------------------
-builder.Services.AddCors(options =>
-{
-	options.AddPolicy("AllowAllOrigins",
-		policyBuilder => policyBuilder.AllowAnyOrigin()
-			.AllowAnyMethod()
-			.AllowAnyHeader());
-});
+// builder.Services.AddCors(options =>
+// {
+// 	options.AddPolicy("AllowAllOrigins",
+// 		policyBuilder => policyBuilder.AllowAnyOrigin()
+// 			.AllowAnyMethod()
+// 			.AllowAnyHeader());
+// });
 
 // -------------------------------------------------------------------------------
 // -- Swagger
@@ -45,6 +47,27 @@ builder.Services.AddProblemDetails(options =>
 	};
 });
 // builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// -------------------------------------------------------------------------------
+// -- OpenTelemetry
+// -------------------------------------------------------------------------------
+builder.Services
+	.AddOpenTelemetry()
+	.ConfigureResource(resource => resource.AddService("UniversityApp.UserService"))
+	.WithTracing(options =>
+	{
+		options
+			.AddAspNetCoreInstrumentation()
+			.AddHttpClientInstrumentation()
+			.AddEntityFrameworkCoreInstrumentation(instrumentationOptions => instrumentationOptions.SetDbStatementForText = true)
+			.AddSource(MassTransit.Logging.DiagnosticHeaders.DefaultListenerName);
+
+		options.AddOtlpExporter(configure =>
+		{
+			configure.Endpoint = new Uri(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]
+			                             ?? throw new Exception("OTLP Exporter Endpoint is not configured"));
+		});
+	});
 
 // -------------------------------------------------------------------------------
 // -- Database
@@ -140,7 +163,7 @@ var app = builder.Build(); // Build the application pipeline
 // -------------------------------------------------------------------------------
 // -- Middlewares
 // -------------------------------------------------------------------------------
-app.UseCors("AllowAllOrigins"); // Apply CORS policy to allow all origins, methods, and headers
+// app.UseCors("AllowAllOrigins"); // Apply CORS policy to allow all origins, methods, and headers
 app.ApplyMigrations(); // Apply database migrations at startup
 app.UseSwagger(); // Enable Swagger for API documentation
 app.UseSwaggerUI(options =>
