@@ -2,11 +2,15 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.UserService.Integrations.Services;
 using UniversityApp.UserService.Repositories;
 
 namespace UniversityApp.UserService.Services;
 
-public class StudentService(IStudentRepository studentRepository) : IStudentService
+public class StudentService(
+	IStudentRepository studentRepository,
+	IKeycloakAdminService keycloakAdminService
+	) : IStudentService
 {
 	public async Task<Result<IEnumerable<Student>>> GetAllAsync()
 	{
@@ -37,10 +41,21 @@ public class StudentService(IStudentRepository studentRepository) : IStudentServ
 			return Result.Failure<Student>($"Student with ID=\"{existingStudent.Id}\" already exists.");
 		
 		var existingStudentWithSameNumber = await studentRepository.FindStudentByStudentNumber(dto.StudentNumber);
-		return existingStudentWithSameNumber != null
-			? Result.Failure<Student>(
-				$"Student with StudentNumber=\"{existingStudentWithSameNumber.StudentNumber}\" already exists.")
-			: Result.Success(student);
+
+		if (existingStudentWithSameNumber == null)
+			return Result.Failure<Student>($"Student with StudentNumber=\"{dto.StudentNumber}\" already exists.");
+		
+		try
+		{
+			await keycloakAdminService.AssignRoleToUserAsync(student.Id.ToString(), "student");
+		}
+		catch (Exception ex)
+		{
+			return Result.Failure<Student>($"Failed to assign role to lecturer: {ex.Message}");
+		}
+		
+		await studentRepository.AddAsync(student);
+		return Result.Success(student);
 	}
 
 	public async Task<Result<Student>> UpdateAsync(Guid id, UpdateStudentDto dto)

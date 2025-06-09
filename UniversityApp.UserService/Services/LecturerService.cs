@@ -1,11 +1,15 @@
 ﻿using CSharpFunctionalExtensions;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.UserService.Integrations.Services;
 using UniversityApp.UserService.Repositories;
 
 namespace UniversityApp.UserService.Services;
 
-public class LecturerService(ILecturerRepository lecturerRepository) : ILecturerService
+public class LecturerService(
+	ILecturerRepository lecturerRepository,
+	IKeycloakAdminService keycloakAdminService
+	) : ILecturerService
 {
 	public async Task<Result<IEnumerable<Lecturer>>> GetAllAsync()
 	{
@@ -36,6 +40,16 @@ public class LecturerService(ILecturerRepository lecturerRepository) : ILecturer
 			return Result.Failure<Lecturer>($"Lecturer with ID=\"{existingLecturer.Id}\" already exists.");
 
 		await lecturerRepository.AddAsync(lecturer);
+		
+		try
+		{
+			await keycloakAdminService.AssignRoleToUserAsync(lecturer.Id.ToString(), "lecturer");
+		}
+		catch (Exception ex)
+		{
+			return Result.Failure<Lecturer>($"Failed to assign role to lecturer: {ex.Message}");
+		}
+		
 		return Result.Success(lecturer);
 	}
 

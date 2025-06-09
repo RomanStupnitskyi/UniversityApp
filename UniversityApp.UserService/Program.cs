@@ -9,6 +9,7 @@ using OpenTelemetry.Trace;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using UniversityApp.UserService.Data;
 using UniversityApp.UserService.Extensions;
+using UniversityApp.UserService.Integrations.Services;
 using UniversityApp.UserService.Repositories;
 using UniversityApp.UserService.Services;
 using UniversityApp.UserService.Validators;
@@ -109,6 +110,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 			?? throw new Exception("App Realm URL for JWT Bearer is not configured")
 		];
 	});
+
+// -------------------------------------------------------------------------------
+// -- Keycloak Admin Service
+// -------------------------------------------------------------------------------
+builder.Services.AddHttpClient<KeycloakAdminService>();
+builder.Services.AddScoped<IKeycloakAdminService, KeycloakAdminService>();
 
 // -------------------------------------------------------------------------------
 // -- MassTransit & RabbitMQ
