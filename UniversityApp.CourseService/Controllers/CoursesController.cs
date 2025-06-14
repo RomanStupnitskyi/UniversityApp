@@ -7,7 +7,7 @@ namespace UniversityApp.CourseService.Controllers;
 
 [ApiController]
 [Route("/courses")]
-// [Authorize] // Temporarily disabled until microservices communication is set up
+[Authorize]
 public class CoursesController(ICourseService courseService) : ControllerBase
 {
 	[HttpGet]
@@ -29,6 +29,7 @@ public class CoursesController(ICourseService courseService) : ControllerBase
 	}
 	
 	[HttpPost]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> CreateAsync([FromBody] CreateCourseDto dto)
 	{
 		var result = await courseService.CreateAsync(dto);
@@ -38,6 +39,7 @@ public class CoursesController(ICourseService courseService) : ControllerBase
 	}
 	
 	[HttpPut("{id:guid}")]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateCourseDto dto)
 	{
 		var result = await courseService.UpdateAsync(id, dto);
@@ -47,6 +49,7 @@ public class CoursesController(ICourseService courseService) : ControllerBase
 	}
 	
 	[HttpDelete("{id:guid}")]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> DeleteAsync(Guid id)
 	{
 		var result = await courseService.DeleteAsync(id);

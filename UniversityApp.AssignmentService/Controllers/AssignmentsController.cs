@@ -35,6 +35,7 @@ public class AssignmentsController(
 	}
 	
 	[HttpPost]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> CreateAsync([FromBody] CreateAssignmentDto dto)
 	{
 		var result = await assignmentService.CreateAsync(dto);
@@ -44,6 +45,7 @@ public class AssignmentsController(
 	}
 	
 	[HttpPut("{id:guid}")]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> UpdateAsync(Guid id, [FromBody] UpdateAssignmentDto dto)
 	{
 		var result = await assignmentService.UpdateAsync(id, dto);
@@ -53,6 +55,7 @@ public class AssignmentsController(
 	}
 	
 	[HttpDelete("{id:guid}")]
+	[Authorize(Roles = "lecturer")]
 	public async Task<ActionResult> DeleteAsync(Guid id)
 	{
 		var result = await assignmentService.DeleteAsync(id);

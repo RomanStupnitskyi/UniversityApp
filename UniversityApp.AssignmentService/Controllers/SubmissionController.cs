@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.DTOs;
 
@@ -6,6 +7,7 @@ namespace UniversityApp.AssignmentService.Controllers;
 
 [ApiController]
 [Route("/assignments/{assignmentId:guid}/submissions")]
+[Authorize]
 public class SubmissionController(ISubmissionService submissionService) : ControllerBase
 {
 	[HttpGet]
@@ -27,6 +29,7 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 	}
 	
 	[HttpPost]
+	[Authorize(Roles = "student")]
 	public async Task<IActionResult> Create(Guid assignmentId, [FromBody] CreateSubmissionDto dto)
 	{
 		var result = await submissionService.CreateAsync(assignmentId, dto);
@@ -36,6 +39,7 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 	}
 	
 	[HttpPut("{submissionId:guid}")]
+	[Authorize(Roles = "student")]
 	public async Task<IActionResult> Update(Guid assignmentId, Guid submissionId, [FromBody] UpdateSubmissionDto dto)
 	{
 		var result = await submissionService.UpdateAsync(assignmentId, submissionId, dto);
@@ -45,6 +49,7 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 	}
 	
 	[HttpDelete("{submissionId:guid}")]
+	[Authorize(Roles = "student")]
 	public async Task<IActionResult> Delete(Guid assignmentId, Guid submissionId)
 	{
 		var result = await submissionService.DeleteAsync(assignmentId, submissionId);

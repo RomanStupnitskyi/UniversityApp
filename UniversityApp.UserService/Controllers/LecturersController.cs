@@ -11,6 +11,7 @@ namespace UniversityApp.UserService.Controllers;
 public class LecturersController(ILecturerService lecturerService) : ControllerBase
 {
 	[HttpGet]
+	[Authorize(Roles = "admin")]
 	public async Task<IActionResult> GetAll()
 	{
 		var result = await lecturerService.GetAllAsync();
@@ -47,6 +48,7 @@ public class LecturersController(ILecturerService lecturerService) : ControllerB
 	}
 	
 	[HttpDelete("{id:guid}")]
+	[Authorize(Roles = "admin")]
 	public async Task<IActionResult> Delete(Guid id)
 	{
 		var result = await lecturerService.DeleteAsync(id);
