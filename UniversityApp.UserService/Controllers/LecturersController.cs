@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Queries;
 using UniversityApp.UserService.Services;
 
 namespace UniversityApp.UserService.Controllers;
@@ -12,9 +13,9 @@ public class LecturersController(ILecturerService lecturerService) : ControllerB
 {
 	[HttpGet]
 	[Authorize(Roles = "admin")]
-	public async Task<IActionResult> GetAll()
+	public async Task<IActionResult> GetAll([FromQuery] LecturerQuery query)
 	{
-		var result = await lecturerService.GetAllAsync();
+		var result = await lecturerService.GetAllAsync(query);
 		return result.IsSuccess
 			? Ok(result.Value)
 			: Conflict(result.Error);

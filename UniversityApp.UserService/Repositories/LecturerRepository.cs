@@ -1,14 +1,19 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UniversityApp.UserService.Data;
 using UniversityApp.Shared.Models;
+using UniversityApp.UserService.Specifications;
 
 namespace UniversityApp.UserService.Repositories;
 
 public class LecturerRepository(UserDbContext dbContext) : ILecturerRepository
 {
-	public async Task<IEnumerable<Lecturer>> GetAllAsync()
+	public async Task<IEnumerable<Lecturer>> GetAllAsync(LecturerSpecification specification)
 	{
-		return await dbContext.Lecturers.ToListAsync();
+		return await dbContext
+			.Lecturers
+			.WithSpecification(specification)
+			.ToListAsync();
 	}
 
 	public async Task<Lecturer?> GetByIdAsync(Guid id)

@@ -1,4 +1,5 @@
 ﻿using Ardalis.Specification;
+using UniversityApp.AssignmentService.Extensions;
 using UniversityApp.Shared.Models;
 using UniversityApp.Shared.Queries;
 
@@ -9,35 +10,35 @@ public class AssignmentSpecification : Specification<Assignment>
 	public AssignmentSpecification(AssignmentQuery query)
 	{
 		// [#] Apply filters based on the query parameters
-		if (query.Id.HasValue)
+		if (query.Ids is { Length: > 0 })
 		{
-			Query.Where(a => a.Id == query.Id.Value);
+			Query.Where(assignment => query.Ids.Contains(assignment.Id));
 		}
 
-		if (query.CourseId.HasValue)
+		if (query.CourseIds is { Length: > 0 })
 		{
-			Query.Where(a => a.CourseId == query.CourseId.Value);
+			Query.Where(assignment => query.CourseIds.Contains(assignment.CourseId));
 		}
 
 		if (query.Active.HasValue)
 		{
-			Query.Where(a => a.EndDate == null || a.EndDate > DateTime.UtcNow);
+			Query.Where(assignment => assignment.EndDate == null || assignment.EndDate > DateTime.UtcNow);
 		}
 		
 		// [#] Apply ordering based on the query parameters
 		switch (query.OrderBy)
 		{
 			case "title":
-				Query.OrderBy(a => a.Title);
+				Query.OrderByDirection(assignment => assignment.Title, query.Ascending);
 				break;
 			case "startDate":
-				Query.OrderBy(a => a.StartDate);
+				Query.OrderByDirection(assignment => assignment.StartDate, query.Ascending);
 				break;
 			case "endDate":
-				Query.OrderBy(a => a.EndDate);
+				Query.OrderByDirection(assignment => assignment.EndDate, query.Ascending);
 				break;
 			default:
-				Query.OrderBy(a => a.CreatedAt);
+				Query.OrderByDirection(assignment => assignment.CreatedAt, query.Ascending);
 				break;
 		}
 		

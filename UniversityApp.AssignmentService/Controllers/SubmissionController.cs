@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.AssignmentService.Controllers;
 
@@ -11,9 +12,9 @@ namespace UniversityApp.AssignmentService.Controllers;
 public class SubmissionController(ISubmissionService submissionService) : ControllerBase
 {
 	[HttpGet]
-	public async Task<IActionResult> GetAll(Guid assignmentId)
+	public async Task<IActionResult> GetAll(Guid assignmentId, [FromQuery] SubmissionQuery query)
 	{
-		var result = await submissionService.GetAllAsync(assignmentId);
+		var result = await submissionService.GetAllAsync(assignmentId, query);
 		return result.IsSuccess
 			? Ok(result.Value)
 			: NotFound(result.Error);

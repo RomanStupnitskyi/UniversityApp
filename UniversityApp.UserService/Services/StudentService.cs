@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.Shared.Queries;
 using UniversityApp.UserService.Integrations.Services;
 using UniversityApp.UserService.Repositories;
+using UniversityApp.UserService.Specifications;
 
 namespace UniversityApp.UserService.Services;
 
@@ -12,10 +14,11 @@ public class StudentService(
 	IKeycloakAdminService keycloakAdminService
 	) : IStudentService
 {
-	public async Task<Result<IEnumerable<Student>>> GetAllAsync()
+	public async Task<Result<IEnumerable<Student>>> GetAllAsync(StudentQuery query)
 	{
-		var students = await studentRepository.GetAllAsync();
+		var specification = new StudentSpecification(query);
 		
+		var students = await studentRepository.GetAllAsync(specification);
 		return Result.Success(students);
 	}
 
@@ -42,8 +45,8 @@ public class StudentService(
 		
 		var existingStudentWithSameNumber = await studentRepository.FindStudentByStudentNumber(dto.StudentNumber);
 
-		if (existingStudentWithSameNumber == null)
-			return Result.Failure<Student>($"Student with StudentNumber=\"{dto.StudentNumber}\" already exists.");
+		if (existingStudentWithSameNumber != null)
+			return Result.Failure<Student>($"Student with StudentNumber=\"{existingStudentWithSameNumber.StudentNumber}\" already exists.");
 		
 		try
 		{

@@ -1,8 +1,11 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Ardalis.Specification;
+using CSharpFunctionalExtensions;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.Shared.Queries;
 using UniversityApp.UserService.Integrations.Services;
 using UniversityApp.UserService.Repositories;
+using UniversityApp.UserService.Specifications;
 
 namespace UniversityApp.UserService.Services;
 
@@ -11,9 +14,11 @@ public class LecturerService(
 	IKeycloakAdminService keycloakAdminService
 	) : ILecturerService
 {
-	public async Task<Result<IEnumerable<Lecturer>>> GetAllAsync()
+	public async Task<Result<IEnumerable<Lecturer>>> GetAllAsync(LecturerQuery query)
 	{
-		var lecturers = await lecturerRepository.GetAllAsync();
+		var specification = new LecturerSpecification(query);
+		
+		var lecturers = await lecturerRepository.GetAllAsync(specification);
 		return Result.Success(lecturers);
 	}
 

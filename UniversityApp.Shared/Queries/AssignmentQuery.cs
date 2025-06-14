@@ -2,7 +2,6 @@
 
 public class AssignmentQuery : BaseQuery
 {
-	public Guid? Id { get; set; }
-	public Guid? CourseId { get; set; }
+	public Guid[]? CourseIds { get; set; }
 	public bool? Active { get; set; }
 }

@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.API;
 using UniversityApp.AssignmentService.Repositories;
+using UniversityApp.AssignmentService.Specifications;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Models;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.AssignmentService.Services;
 
@@ -13,13 +15,15 @@ public class SubmissionService(
 	IUserAPI userAPI
 	) : ISubmissionService
 {
-	public async Task<Result<IEnumerable<Submission>>> GetAllAsync(Guid assignmentId)
+	public async Task<Result<IEnumerable<Submission>>> GetAllAsync(Guid assignmentId, SubmissionQuery query)
 	{
+		var specification = new SubmissionSpecification(query);
+		
 		var assignment = await assignmentRepository.GetByIdAsync(assignmentId);
 		if (assignment == null)
 			return Result.Failure<IEnumerable<Submission>>($"Assignment with ID=\"{assignmentId}\" not found");
 		
-		var submissions = await submissionRepository.GetAllAsync(assignmentId);
+		var submissions = await submissionRepository.GetAllAsync(assignmentId, specification);
 		return Result.Success(submissions);
 	}
 
@@ -96,8 +100,10 @@ public class SubmissionService(
 		var assignment = await assignmentRepository.GetByIdAsync(assignmentId);
 		if (assignment == null)
 			return Result.Failure($"Assignment with ID=\"{assignmentId}\" not found");
+
+		var specification = new SubmissionSpecification(new SubmissionQuery());
 		
-		var submissions = await submissionRepository.GetAllAsync(assignmentId);
+		var submissions = await submissionRepository.GetAllAsync(assignmentId, specification);
 		if (!submissions.Any())
 			return Result.Success(); // No submissions to delete
 		

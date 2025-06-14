@@ -1,16 +1,21 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Ardalis.Specification.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using UniversityApp.UserService.Data;
 using UniversityApp.Shared.Models;
+using UniversityApp.UserService.Specifications;
 
 namespace UniversityApp.UserService.Repositories;
 
 public class StudentRepository(UserDbContext dbContext) : IStudentRepository
 {
 	[SuppressMessage("ReSharper.DPA", "DPA0000: DPA issues")]
-	public async Task<IEnumerable<Student>> GetAllAsync()
+	public async Task<IEnumerable<Student>> GetAllAsync(StudentSpecification specification)
 	{
-		return await dbContext.Students.ToListAsync();
+		return await dbContext
+			.Students
+			.WithSpecification(specification)
+			.ToListAsync();
 	}
 
 	public async Task<Student?> GetByIdAsync(Guid id)
@@ -49,6 +54,7 @@ public class StudentRepository(UserDbContext dbContext) : IStudentRepository
 	public async Task<Student?> FindStudentByStudentNumber(string studentNumber)
 	{
 		return await dbContext.Students
-			.FirstOrDefaultAsync(s => s.StudentNumber == studentNumber);
+			.Where(s => s.StudentNumber == studentNumber)
+			.FirstOrDefaultAsync();
 	}
 }

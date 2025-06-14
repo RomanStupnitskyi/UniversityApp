@@ -3,8 +3,10 @@ using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.Shared.Models;
 using UniversityApp.CourseService.Repositories;
+using UniversityApp.CourseService.Specifications;
 using UniversityApp.Shared.DTOs;
 using UniversityApp.Shared.Events;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.CourseService.Services;
 
@@ -13,9 +15,11 @@ public class CourseService(
 	IPublishEndpoint publishEndpoint
 	) : ICourseService
 {
-	public async Task<Result<IEnumerable<Course>>> GetAllAsync()
+	public async Task<Result<IEnumerable<Course>>> GetAllAsync(CourseQuery query)
 	{
-		var courses = await courseRepository.GetAllAsync();
+		var specification = new CourseSpecification(query);
+		
+		var courses = await courseRepository.GetAllAsync(specification);
 		return Result.Success(courses);
 	}
 

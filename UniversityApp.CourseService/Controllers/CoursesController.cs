@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.CourseService.Services;
 using UniversityApp.Shared.DTOs;
+using UniversityApp.Shared.Queries;
 
 namespace UniversityApp.CourseService.Controllers;
 
@@ -11,9 +12,9 @@ namespace UniversityApp.CourseService.Controllers;
 public class CoursesController(ICourseService courseService) : ControllerBase
 {
 	[HttpGet]
-	public async Task<ActionResult> GetAllAsync()
+	public async Task<ActionResult> GetAllAsync([FromQuery] CourseQuery query)
 	{
-		var result = await courseService.GetAllAsync();
+		var result = await courseService.GetAllAsync(query);
 		return result.IsSuccess
 			? Ok(result.Value)
 			: NotFound(result.Error);

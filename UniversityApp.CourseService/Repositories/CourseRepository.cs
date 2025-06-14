@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Ardalis.Specification;
+using Ardalis.Specification.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using UniversityApp.CourseService.Data;
 using UniversityApp.Shared.Models;
 
@@ -6,9 +8,12 @@ namespace UniversityApp.CourseService.Repositories;
 
 public class CourseRepository(CourseDbContext dbContext) : ICourseRepository
 {
-	public async Task<IEnumerable<Course>> GetAllAsync()
+	public async Task<IEnumerable<Course>> GetAllAsync(Specification<Course> specification)
 	{
-		var courses = await dbContext.Courses.ToListAsync();
+		var courses = await dbContext
+			.Courses
+			.WithSpecification(specification)
+			.ToListAsync();
 		return courses;
 	}
 
