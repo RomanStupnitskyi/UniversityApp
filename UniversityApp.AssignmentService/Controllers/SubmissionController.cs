@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UniversityApp.AssignmentService.Services;
 using UniversityApp.Shared.DTOs;
@@ -36,7 +37,7 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 		var result = await submissionService.CreateAsync(
 			assignmentId,
 			dto,
-			Guid.Parse(User.FindFirst("sub")?.Value ?? Guid.Empty.ToString()));
+			Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value));
 		return result.IsSuccess
 			? Ok(result.Value)
 			: BadRequest(result.Error);
