@@ -12,7 +12,7 @@ namespace UniversityApp.AssignmentService.Services;
 public class SubmissionService(
 	ISubmissionRepository submissionRepository,
 	IAssignmentRepository assignmentRepository,
-	IUserAPI userAPI
+	IUserAPI userApi
 	) : ISubmissionService
 {
 	public async Task<Result<IEnumerable<Submission>>> GetAllAsync(Guid assignmentId, SubmissionQuery query)
@@ -33,25 +33,21 @@ public class SubmissionService(
 		return Result.Success(submission);
 	}
 
-	public async Task<Result<Submission>> CreateAsync(Guid assignmentId, CreateSubmissionDto dto)
+	public async Task<Result<Submission>> CreateAsync(Guid assignmentId, CreateSubmissionDto dto, Guid studentId)
 	{
 		var submission = await submissionRepository.GetByIdAsync(assignmentId, dto.Id);
 		if (submission != null)
 			return Result.Failure<Submission>($"Submission with ID=\"{dto.Id}\" already exists");
 		
-		var response = await userAPI.GetStudentByIdAsync(dto.StudentId);
-		if (!response.IsSuccessStatusCode)
-			return Result.Failure<Submission>($"Student with ID=\"{dto.StudentId}\" not found");
-		
-		var submissionByStudent = await submissionRepository.GetByStudentIdAsync(assignmentId, dto.StudentId);
+		var submissionByStudent = await submissionRepository.GetByStudentIdAsync(assignmentId, studentId);
 		if (submissionByStudent != null)
-			return Result.Failure<Submission>($"Submission from StudentId=\"{dto.StudentId}\" in the AssignmentId=\"{assignmentId}\" already exists");
+			return Result.Failure<Submission>($"Submission from StudentId=\"{studentId}\" in the AssignmentId=\"{assignmentId}\" already exists");
 
 		var newSubmission = new Submission
 		{
 			Id = dto.Id,
 			AssignmentId = assignmentId,
-			StudentId = dto.StudentId,
+			StudentId = studentId,
 			Content = dto.Content
 		};
 		await submissionRepository.AddAsync(newSubmission);

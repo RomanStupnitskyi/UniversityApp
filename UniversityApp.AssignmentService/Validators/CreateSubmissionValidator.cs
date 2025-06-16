@@ -11,12 +11,6 @@ public class CreateSubmissionValidator : AbstractValidator<CreateSubmissionDto>
 			.Must(id => id != Guid.Empty)
 			.WithMessage("CourseId must not be an empty GUID.");
 
-		RuleFor(x => x.StudentId)
-			.NotEmpty()
-			.WithMessage("CourseId is required.")
-			.Must(id => id != Guid.Empty)
-			.WithMessage("CourseId must not be an empty GUID.");
-
 		RuleFor(x => x.Content)
 			.NotEmpty()
 			.WithMessage("Submission content is required.")

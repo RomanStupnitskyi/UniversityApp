@@ -33,7 +33,10 @@ public class SubmissionController(ISubmissionService submissionService) : Contro
 	[Authorize(Roles = "student")]
 	public async Task<IActionResult> Create(Guid assignmentId, [FromBody] CreateSubmissionDto dto)
 	{
-		var result = await submissionService.CreateAsync(assignmentId, dto);
+		var result = await submissionService.CreateAsync(
+			assignmentId,
+			dto,
+			Guid.Parse(User.FindFirst("sub")?.Value ?? Guid.Empty.ToString()));
 		return result.IsSuccess
 			? Ok(result.Value)
 			: BadRequest(result.Error);

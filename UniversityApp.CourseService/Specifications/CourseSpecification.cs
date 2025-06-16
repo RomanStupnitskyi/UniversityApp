@@ -7,11 +7,8 @@ namespace UniversityApp.CourseService.Specifications;
 
 public class CourseSpecification : Specification<Course>
 {
-	private CourseQuery _query;
 	public CourseSpecification(CourseQuery query)
 	{
-		_query = query;
-		
 		// [#] Apply filters based on the query parameters
 		if (query.Ids is { Length: > 0 })
 		{
